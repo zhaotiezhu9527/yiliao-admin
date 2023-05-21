@@ -165,20 +165,18 @@
             placeholder="请选择最后修改时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="图片地址" prop="img">
+        <el-form-item label="图片上传" prop="img">
           <el-upload
-            ref="upload"
-            :limit="1"
-            accept=".jpg, .png"
+            class="upload-demo"
+            drag
             :action="upload.url"
             :headers="upload.headers"
             :file-list="upload.fileList"
             :on-progress="handleFileUploadProgress"
-            :on-success="handleFileSuccess"
-            :auto-upload="false">
-            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-            <el-button style="margin-left: 10px;" size="small" type="success" :loading="upload.isUploading" @click="submitUpload">上传到服务器</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
         </el-form-item>
       </el-form>
