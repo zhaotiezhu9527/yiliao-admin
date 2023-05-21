@@ -1,34 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="文件名称" prop="fileName">
-        <el-input
-          v-model="queryParams.fileName"
-          placeholder="请输入文件名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="文件路径" prop="filePath">
-        <el-input
-          v-model="queryParams.filePath"
-          placeholder="请输入文件路径"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
           type="primary"
           plain
           size="mini"
+          icon="el-icon-plus"
           @click="handleAdd"
           v-hasPermi="['system:info:upload']"
         >上传</el-button>
@@ -39,24 +17,27 @@
     <el-table v-loading="loading" :data="infoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文件id" align="center" prop="fileId" />
-      <el-table-column label="文件名称" align="center" prop="fileName" />
-      <el-table-column label="文件路径" align="center" prop="filePath" />
+      <el-table-column label="图片" align="center" >
+        <template slot-scope="scope">
+          <img class="img-class" :src="scope.row.fileFullPath" />
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
+            size="small"
+            type="success"
+            v-clipboard:copy="scope.row.fileFullPath" v-clipboard:success="onCopy"
             v-hasPermi="['system:info:edit']"
-          >修改</el-button>
-          <el-button
+          >复制图片链接地址</el-button>
+          <!-- <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:info:remove']"
-          >删除</el-button>
+          >删除</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -72,28 +53,23 @@
     <!-- 添加或修改文件信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="文件名称" prop="fileName">
+        <el-form-item label="选择图片" prop="fileName">
           <el-upload
-            ref="upload"
-            :limit="1"
-            accept=".jpg, .png"
+            class="upload-demo"
+            drag
             :action="upload.url"
             :headers="upload.headers"
             :file-list="upload.fileList"
             :on-progress="handleFileUploadProgress"
-            :on-success="handleFileSuccess"
-            :auto-upload="false">
-            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-            <el-button style="margin-left: 10px;" size="small" type="success" :loading="upload.isUploading" @click="submitUpload">上传到服务器</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
-        </el-form-item>
-        <el-form-item label="文件路径" prop="filePath">
-          <el-input v-model="form.filePath" placeholder="请输入文件路径" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button type="primary" @click="cancel">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -165,6 +141,7 @@ export default {
     },
     // 取消按钮
     cancel() {
+      this.getList()
       this.open = false;
       this.reset();
     },
@@ -197,53 +174,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加文件信息";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const fileId = row.fileId || this.ids
-      getInfo(fileId).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改文件信息";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.fileId != null) {
-            updateInfo(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addInfo(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const fileIds = row.fileId || this.ids;
-      this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？').then(function() {
-        return delInfo(fileIds);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      this.download('system/info/export', {
-        ...this.queryParams
-      }, `info_${new Date().getTime()}.xlsx`)
+      this.title = "上传图片";
     },
     // 文件提交处理
     submitUpload() {
@@ -258,7 +189,18 @@ export default {
       this.upload.isUploading = false;
       this.form.filePath = response.url;
       this.msgSuccess(response.msg);
-    }
+    },
+    onCopy(e){ 　　 // 复制成功
+　　　　this.$message({
+　　　　　　message:'复制成功！',
+　　　　　　type:'success'
+　　　　})
+　　 },
   }
 };
 </script>
+<style>
+.img-class{
+  height: 100px;
+}
+</style>
