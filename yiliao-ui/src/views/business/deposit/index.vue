@@ -34,7 +34,11 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-
+    <div class="details">
+      <label>充值成功：<span>{{other.success}}元</span></label> ｜
+      <label>充值失败：<span>{{other.fail}}元</span></label> ｜
+      <label>未处理：<span>{{other.wait}}元</span></label> 
+    </div>
     <el-row :gutter="10" class="mb8">
       <!-- <el-col :span="1.5">
         <el-button
@@ -97,7 +101,7 @@
       </el-table-column>
       <el-table-column label="提交时间" align="center" prop="optTime" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.optTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.optTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
@@ -127,7 +131,6 @@
         </template>
       </el-table-column>
     </el-table>
-    
     <pagination
       v-show="total>0"
       :total="total"
@@ -182,6 +185,7 @@
 
 <script>
 import { listDeposit, getDeposit, delDeposit, addDeposit, updateDeposit } from "@/api/business/deposit";
+import { dateFormat} from '@/utils/auth'
 
 export default {
   name: "Deposit",
@@ -206,7 +210,7 @@ export default {
       // 是否显示弹出层
       open: false,
       // 时间
-      dateRange:[],
+      dateRange:  [],
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -252,9 +256,15 @@ export default {
             }
           }]
         },
+        other: {
+          fail: 0,//失败
+          success: 0,//成功
+          wait: 0,//未处理
+        },//其他数据
     };
   },
   created() {
+    this.getDefaultTime()
     this.getList();
   },
   methods: {
@@ -265,6 +275,7 @@ export default {
         this.depositList = response.rows;
         this.total = response.total;
         this.loading = false;
+        this.other = response.other
       });
     },
     // 取消按钮
@@ -357,7 +368,22 @@ export default {
       this.download('business/deposit/export', {
         ...this.queryParams
       }, `deposit_${new Date().getTime()}.xlsx`)
+    },
+    getDefaultTime() {
+      let end = new Date();
+      let start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+      this.dateRange[0] = dateFormat("YYYY-mm-dd" , start) + ' 00:00:00'
+      this.dateRange[1] = dateFormat("YYYY-mm-dd" , end) + ' 23:59:59'
     }
   }
 };
 </script>
+<style scoped>
+.details{
+  margin-bottom: 20px;
+}
+.details span{
+  color: red;
+}
+</style>
