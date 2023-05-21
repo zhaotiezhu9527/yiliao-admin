@@ -1,21 +1,31 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="充值帐户" prop="userName">
+      <el-form-item label="订单号" prop="orderNo">
         <el-input
-          v-model="queryParams.userName"
-          placeholder="请输入充值帐户"
+          v-model="queryParams.orderNo"
+          placeholder="请输入订单号"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="订单号" prop="orderNo">
+      <el-form-item label="用户名" prop="userName">
         <el-input
-          v-model="queryParams.orderNo"
-          placeholder="订单号，支持模糊查询"
+          v-model="queryParams.userName"
+          placeholder="请输入用户名"
           clearable
           @keyup.enter.native="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="处理进度" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择">
+          <el-option
+            v-for="item in statusArr"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="操作时间" prop="optTime">
         <el-date-picker
@@ -34,9 +44,10 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
+    <!-- 其他数据 -->
     <div class="details">
-      <label>充值成功：<span>{{other.success}}元</span></label> ｜
-      <label>充值失败：<span>{{other.fail}}元</span></label> ｜
+      <label>提现成功：<span>{{other.success}}元</span></label> ｜
+      <label>提现失败：<span>{{other.fail}}元</span></label> ｜
       <label>未处理：<span>{{other.wait}}元</span></label> 
     </div>
     <el-row :gutter="10" class="mb8">
@@ -47,7 +58,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['business:deposit:add']"
+          v-hasPermi="['business:withdraw:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -58,7 +69,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['business:deposit:edit']"
+          v-hasPermi="['business:withdraw:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -69,7 +80,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['business:deposit:remove']"
+          v-hasPermi="['business:withdraw:remove']"
         >删除</el-button>
       </el-col> -->
       <el-col :span="1.5">
@@ -79,58 +90,63 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['business:deposit:export']"
+          v-hasPermi="['business:withdraw:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="depositList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="withdrawList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="序号" align="center" prop="id" />
+      <!-- <el-table-column label="id" align="center" prop="id" /> -->
       <el-table-column label="订单号" align="center" prop="orderNo" />
       <el-table-column label="账户" align="center" prop="userName" />
-      <el-table-column label="姓名" align="center" prop="realName" />
-      <el-table-column label="充值金额" align="center" prop="optAmount" />
+      <el-table-column label="提现金额（元）" align="center" prop="optAmount" />
       <el-table-column label="操作前金额" align="center" prop="beforeAmount" />
       <el-table-column label="操作后金额" align="center" prop="afterAmount" />
-      <el-table-column label="支付方式" align="center" prop="optType" >
+      <el-table-column label="USDT钱包地址" align="center" prop="walletAddr" width="200" />
+      <el-table-column label="银行信息" align="center" prop="bankCardNum" width="300">
         <template slot-scope="scope">
-          <span>{{ scope.row.optType === 1 ? '系统充值' : '-'}}</span>
+          <div v-if="scope.row.optType === 1">
+            <div>账户名称：{{ scope.row.realName }}</div>
+            <div>开户银行：{{ scope.row.bankName }}</div>
+            <div>银行账号：{{ scope.row.bankCardNum }}</div>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="提交时间" align="center" prop="optTime" width="180">
+      <el-table-column label="提现类型" align="center" prop="optType" >
+        <template slot-scope="scope">
+          <label v-if="scope.row.optType === 1">提现到银行卡</label>
+          <label v-else-if="scope.row.optType === 2">提现到钱包</label>
+        </template>
+      </el-table-column>
+      <el-table-column label="处理进度" align="center" prop="status">
+        <template slot-scope="scope">
+          <label v-if="scope.row.status === 0">待审核</label>
+          <label v-else-if="scope.row.status === 1">到账成功</label>
+          <label v-else-if="scope.row.status === 2">审核不通过</label>
+        </template>
+      </el-table-column>
+      <el-table-column label="申请时间" align="center" prop="optTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.optTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="status">
-        <template slot-scope="scope">
-          <span v-if="scope.row.status === 1">已完成</span>
-          <span v-else-if="scope.row.status === 0">待审核</span>
-          <span v-else>未知</span>
-        </template>
-      </el-table-column>>
-      <el-table-column label="操作人" align="center" prop="optUser" />
+      <el-table-column label="操作人" align="center" prop="operator" />
+      <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <!-- <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['business:deposit:edit']"
-          >修改</el-button>
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['business:deposit:remove']"
-          >删除</el-button> -->
+            size="small"
+            type="primary"
+            @click="handleUpdate(scope.row)"
+            v-hasPermi="['business:withdraw:check']"
+            v-if="scope.row.status === 0"
+          >审核</el-button>
         </template>
       </el-table-column>
     </el-table>
+    
     <pagination
       v-show="total>0"
       :total="total"
@@ -140,16 +156,13 @@
     />
 
     <!-- 添加或修改【请填写功能名称】对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+    <!-- <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="订单号" prop="orderNo">
           <el-input v-model="form.orderNo" placeholder="请输入订单号" />
         </el-form-item>
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="form.userName" placeholder="请输入用户名" />
-        </el-form-item>
-        <el-form-item label="真实姓名" prop="realName">
-          <el-input v-model="form.realName" placeholder="请输入真实姓名" />
         </el-form-item>
         <el-form-item label="操作金额" prop="optAmount">
           <el-input v-model="form.optAmount" placeholder="请输入操作金额" />
@@ -160,35 +173,58 @@
         <el-form-item label="操作后金额" prop="afterAmount">
           <el-input v-model="form.afterAmount" placeholder="请输入操作后金额" />
         </el-form-item>
-        <el-form-item label="操作时间" prop="optTime">
+        <el-form-item label="钱包地址" prop="walletAddr">
+          <el-input v-model="form.walletAddr" placeholder="请输入钱包地址" />
+        </el-form-item>
+        <el-form-item label="银行卡号" prop="bankCardNum">
+          <el-input v-model="form.bankCardNum" placeholder="请输入银行卡号" />
+        </el-form-item>
+        <el-form-item label="银行名称" prop="bankName">
+          <el-input v-model="form.bankName" placeholder="请输入银行名称" />
+        </el-form-item>
+        <el-form-item label="开户行地址" prop="bankAddr">
+          <el-input v-model="form.bankAddr" placeholder="请输入开户行地址" />
+        </el-form-item>
+        <el-form-item label="申请时间" prop="optTime">
           <el-date-picker clearable
             v-model="form.optTime"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="请选择操作时间">
+            placeholder="请选择申请时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="操作人" prop="optUser">
-          <el-input v-model="form.optUser" placeholder="请输入操作人" />
+        <el-form-item label="审核时间" prop="checkTime">
+          <el-date-picker clearable
+            v-model="form.checkTime"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择审核时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="操作人" prop="operator">
+          <el-input v-model="form.operator" placeholder="请输入操作人" />
         </el-form-item>
         <el-form-item label="上级代理" prop="userAgent">
           <el-input v-model="form.userAgent" placeholder="请输入上级代理" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
 <script>
-import { listDeposit, getDeposit, delDeposit, addDeposit, updateDeposit } from "@/api/business/deposit";
+import { listWithdraw, getWithdraw, delWithdraw, addWithdraw, updateWithdraw } from "@/api/business/withdraw";
 import { dateFormat} from '@/utils/auth'
 
 export default {
-  name: "Deposit",
+  name: "Withdraw",
   data() {
     return {
       // 遮罩层
@@ -204,19 +240,18 @@ export default {
       // 总条数
       total: 0,
       // 【请填写功能名称】表格数据
-      depositList: [],
+      withdrawList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
-      // 时间
-      dateRange:  [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         orderNo: null,
         userName: null,
+        status: null,
       },
       // 表单参数
       form: {},
@@ -229,32 +264,40 @@ export default {
           { required: true, message: "用户名不能为空", trigger: "blur" }
         ],
       },
+      statusArr: [
+        { label: '全部', value: ''},
+        { label: '待审核', value: 0},
+        { label: '提现成功', value: 1},
+        { label: '审核不通过', value: 2},
+      ],//银行卡状态
+      //时间
+      dateRange:[],
       pickerOptions: {
-          shortcuts: [{
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
       },
       other: {
         fail: 0,//失败
@@ -271,8 +314,8 @@ export default {
     /** 查询【请填写功能名称】列表 */
     getList() {
       this.loading = true;
-      listDeposit(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.depositList = response.rows;
+      listWithdraw(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.withdrawList = response.rows;
         this.total = response.total;
         this.loading = false;
         this.other = response.other
@@ -289,15 +332,20 @@ export default {
         id: null,
         orderNo: null,
         userName: null,
-        realName: null,
         optAmount: null,
         beforeAmount: null,
         afterAmount: null,
+        walletAddr: null,
+        bankCardNum: null,
+        bankName: null,
+        bankAddr: null,
         optType: null,
-        optTime: null,
         status: null,
-        optUser: null,
-        userAgent: null
+        optTime: null,
+        checkTime: null,
+        operator: null,
+        userAgent: null,
+        remark: null
       };
       this.resetForm("form");
     },
@@ -327,7 +375,7 @@ export default {
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getDeposit(id).then(response => {
+      getWithdraw(id).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "修改【请填写功能名称】";
@@ -338,13 +386,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateDeposit(this.form).then(response => {
+            updateWithdraw(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addDeposit(this.form).then(response => {
+            addWithdraw(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -357,7 +405,7 @@ export default {
     handleDelete(row) {
       const ids = row.id || this.ids;
       this.$modal.confirm('是否确认删除【请填写功能名称】编号为"' + ids + '"的数据项？').then(function() {
-        return delDeposit(ids);
+        return delWithdraw(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -365,9 +413,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('business/deposit/export', {
+      this.download('business/withdraw/export', {
         ...this.queryParams
-      }, `deposit_${new Date().getTime()}.xlsx`)
+      }, `withdraw_${new Date().getTime()}.xlsx`)
     },
     getDefaultTime() {
       let end = new Date();
