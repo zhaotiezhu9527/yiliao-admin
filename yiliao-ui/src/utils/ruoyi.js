@@ -54,7 +54,7 @@ export function resetForm(refName) {
 }
 
 // 添加日期范围
-export function addDateRange(params, dateRange, propName) {
+export function addDateRange(params, dateRange, propName,otherData) {
   let search = params;
   search.params = typeof (search.params) === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
   dateRange = Array.isArray(dateRange) ? dateRange : [];
