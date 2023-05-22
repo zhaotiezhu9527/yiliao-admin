@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juhai.business.mapper.UserLogMapper">
+    
+    <resultMap type="UserLog" id="UserLogResult">
+        <result property="id"    column="id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="ip"    column="ip"    />
+        <result property="ipDetail"    column="ip_detail"    />
+        <result property="loginTime"    column="login_time"    />
+    </resultMap>
+
+    <sql id="selectUserLogVo">
+        select id, user_name, ip, ip_detail, login_time from t_user_log
+    </sql>
+
+    <select id="selectUserLogList" parameterType="UserLog" resultMap="UserLogResult">
+        <include refid="selectUserLogVo"/>
+        <where>  
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+<!--            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>-->
+<!--            <if test="ipDetail != null  and ipDetail != ''"> and ip_detail = #{ipDetail}</if>-->
+<!--            <if test="loginTime != null "> and login_time = #{loginTime}</if>-->
+            <if test="ip != null and ip != ''">
+                AND ip like concat('%', #{ip}, '%')
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(login_time,'%Y-%m-%d %H:%i:%S') &gt;= date_format(#{params.beginTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(login_time,'%Y-%m-%d %H:%i:%S') &lt;= date_format(#{params.endTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+        </where>
+        ORDER BY login_time DESC
+    </select>
+    
+    <select id="selectUserLogById" parameterType="Long" resultMap="UserLogResult">
+        <include refid="selectUserLogVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertUserLog" parameterType="UserLog" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="ip != null">ip,</if>
+            <if test="ipDetail != null">ip_detail,</if>
+            <if test="loginTime != null">login_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="ip != null">#{ip},</if>
+            <if test="ipDetail != null">#{ipDetail},</if>
+            <if test="loginTime != null">#{loginTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserLog" parameterType="UserLog">
+        update t_user_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="ipDetail != null">ip_detail = #{ipDetail},</if>
+            <if test="loginTime != null">login_time = #{loginTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUserLogById" parameterType="Long">
+        delete from t_user_log where id = #{id}
+    </delete>
+
+    <delete id="deleteUserLogByIds" parameterType="String">
+        delete from t_user_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

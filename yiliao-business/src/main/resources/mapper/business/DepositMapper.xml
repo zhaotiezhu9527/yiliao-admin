@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juhai.business.mapper.DepositMapper">
+    
+    <resultMap type="Deposit" id="DepositResult">
+        <result property="id"    column="id"    />
+        <result property="orderNo"    column="order_no"    />
+        <result property="userName"    column="user_name"    />
+        <result property="realName"    column="real_name"    />
+        <result property="optAmount"    column="opt_amount"    />
+        <result property="beforeAmount"    column="before_amount"    />
+        <result property="afterAmount"    column="after_amount"    />
+        <result property="optType"    column="opt_type"    />
+        <result property="optTime"    column="opt_time"    />
+        <result property="status"    column="status"    />
+        <result property="optUser"    column="opt_user"    />
+        <result property="userAgent"    column="user_agent"    />
+    </resultMap>
+
+    <sql id="selectDepositVo">
+        select id, order_no, user_name, real_name, opt_amount, before_amount, after_amount, opt_type, opt_time, status, opt_user, user_agent from t_deposit
+    </sql>
+
+    <select id="selectDepositList" parameterType="Deposit" resultMap="DepositResult">
+        <include refid="selectDepositVo"/>
+        <where>  
+            <if test="orderNo != null  and orderNo != ''"> and order_no like concat('%', #{orderNo}, '%')</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(opt_time,'%Y-%m-%d %H:%i:%S') &gt;= date_format(#{params.beginTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(opt_time,'%Y-%m-%d %H:%i:%S') &lt;= date_format(#{params.endTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+<!--            <if test="optType != null "> and opt_type = #{optType}</if>-->
+<!--            <if test="realName != null  and realName != ''"> and real_name like concat('%', #{realName}, '%')</if>-->
+<!--            <if test="optAmount != null "> and opt_amount = #{optAmount}</if>-->
+<!--            <if test="beforeAmount != null "> and before_amount = #{beforeAmount}</if>-->
+<!--            <if test="afterAmount != null "> and after_amount = #{afterAmount}</if>-->
+<!--            <if test="optTime != null "> and opt_time = #{optTime}</if>-->
+<!--            <if test="status != null "> and status = #{status}</if>-->
+<!--            <if test="optUser != null  and optUser != ''"> and opt_user = #{optUser}</if>-->
+<!--            <if test="userAgent != null  and userAgent != ''"> and user_agent = #{userAgent}</if>-->
+        </where>
+        ORDER BY opt_time DESC
+    </select>
+    
+    <select id="selectDepositById" parameterType="Long" resultMap="DepositResult">
+        <include refid="selectDepositVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDeposit" parameterType="Deposit" useGeneratedKeys="true" keyProperty="id">
+        insert into t_deposit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">order_no,</if>
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="realName != null">real_name,</if>
+            <if test="optAmount != null">opt_amount,</if>
+            <if test="beforeAmount != null">before_amount,</if>
+            <if test="afterAmount != null">after_amount,</if>
+            <if test="optType != null">opt_type,</if>
+            <if test="optTime != null">opt_time,</if>
+            <if test="status != null">status,</if>
+            <if test="optUser != null">opt_user,</if>
+            <if test="userAgent != null">user_agent,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">#{orderNo},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="realName != null">#{realName},</if>
+            <if test="optAmount != null">#{optAmount},</if>
+            <if test="beforeAmount != null">#{beforeAmount},</if>
+            <if test="afterAmount != null">#{afterAmount},</if>
+            <if test="optType != null">#{optType},</if>
+            <if test="optTime != null">#{optTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="optUser != null">#{optUser},</if>
+            <if test="userAgent != null">#{userAgent},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDeposit" parameterType="Deposit">
+        update t_deposit
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">order_no = #{orderNo},</if>
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="optAmount != null">opt_amount = #{optAmount},</if>
+            <if test="beforeAmount != null">before_amount = #{beforeAmount},</if>
+            <if test="afterAmount != null">after_amount = #{afterAmount},</if>
+            <if test="optType != null">opt_type = #{optType},</if>
+            <if test="optTime != null">opt_time = #{optTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="optUser != null">opt_user = #{optUser},</if>
+            <if test="userAgent != null">user_agent = #{userAgent},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDepositById" parameterType="Long">
+        delete from t_deposit where id = #{id}
+    </delete>
+
+    <delete id="deleteDepositByIds" parameterType="String">
+        delete from t_deposit where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

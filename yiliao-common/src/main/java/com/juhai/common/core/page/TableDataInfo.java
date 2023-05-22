@@ -1,5 +1,7 @@
 package com.juhai.common.core.page;
 
+import com.alibaba.fastjson2.JSONObject;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -23,6 +25,9 @@ public class TableDataInfo implements Serializable
 
     /** 消息内容 */
     private String msg;
+
+    /** 其他数据 **/
+    private JSONObject other = new JSONObject();
 
     /**
      * 表格数据对象
@@ -81,5 +86,13 @@ public class TableDataInfo implements Serializable
     public void setMsg(String msg)
     {
         this.msg = msg;
+    }
+
+    public JSONObject getOther() {
+        return other;
+    }
+
+    public void setOther(JSONObject other) {
+        this.other = other;
     }
 }

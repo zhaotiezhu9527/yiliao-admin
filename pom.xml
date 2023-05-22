@@ -30,6 +30,7 @@
         <poi.version>4.1.2</poi.version>
         <velocity.version>2.3</velocity.version>
         <jwt.version>0.9.1</jwt.version>
+        <hutool.version>5.8.16</hutool.version>
     </properties>
 	
     <!-- 依赖声明 -->
@@ -180,6 +181,7 @@
         <module>yiliao-quartz</module>
         <module>yiliao-generator</module>
         <module>yiliao-common</module>
+        <module>yiliao-business</module>
     </modules>
     <packaging>pom</packaging>
 
