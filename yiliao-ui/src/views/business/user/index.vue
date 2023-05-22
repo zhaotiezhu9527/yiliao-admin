@@ -308,6 +308,13 @@
         <el-table-column label="推荐人用户名" align="center" prop="userAgent" />
         <el-table-column label="账户余额" align="center" prop="balance" />
       </el-table>
+      <pagination
+        v-show="detailsTotal>0"
+        :total="detailsTotal"
+        :page.sync="userform.pageNum"
+        :limit.sync="userform.pageSize"
+        @pagination="queryChange(detailType,detailValue)"
+      />
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="detailsOpen = false">确 定</el-button>
         <el-button @click="detailsOpen = false">取 消</el-button>
@@ -343,12 +350,12 @@
         <el-form-item label="银行卡号">
           <el-input :disabled="true" v-model="userform.bankCardNum" />
         </el-form-item>
-        <el-form-item label="登录密码">
+        <!-- <el-form-item label="登录密码">
           <el-input :disabled="true" v-model="userform.loginPwd" />
         </el-form-item>
         <el-form-item label="交易密码">
           <el-input :disabled="true" v-model="userform.payPwd" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="余额">
           <el-input :disabled="true" v-model="userform.balance" />
         </el-form-item>
@@ -365,6 +372,7 @@
           </el-select>
         </el-form-item>
       </el-form>
+      
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="userOpen = false">确 定</el-button>
         <el-button @click="userOpen = false">取 消</el-button>
@@ -478,9 +486,15 @@ export default {
       detailList:[],//详情数据
       detailsOpen: false,//上下级详情弹窗
       // 用户详情数据
-      userform: {},
+      userform: {
+        pageNum: 1,
+        pageSize: 10,
+      },
       // 用户详情弹窗状态
       userOpen: false,
+      detailsTotal: 0,
+      detailType:'',
+      detailValue:'',
     };
   },
   created() {
@@ -665,12 +679,14 @@ export default {
     },
     //查询上下级
     queryChange(type,value){
-      this.loading = true;
+      this.detailType = type
+      this.detailValue = value
       let obj = {}
-      obj[type] = value
-      listUser(obj).then(response => {
+      this.userform[type] = value
+      listUser(this.userform).then(response => {
         this.detailList = response.rows;
-        this.loading = false;
+        this.detailsTotal = response.total;
+        console.log(this.detailsTotal)
         this.detailsOpen = true
       });
     }
