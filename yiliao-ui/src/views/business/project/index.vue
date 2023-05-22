@@ -120,7 +120,7 @@
     />
 
     <!-- 添加或修改【请填写功能名称】对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body :loading="formLoading">
       <el-form ref="form" :model="form" :rules="rules" label-width="150px">
         <el-form-item label="产品名称" prop="projectName">
           <el-input v-model="form.projectName" placeholder="请输入产品名称" />
@@ -161,19 +161,16 @@
         </el-form-item>
         <el-form-item label="图片上传" prop="img">
           <el-upload
-            class="upload-demo"
-            drag
-            :action="upload.url"
-            :headers="upload.headers"
-            :file-list="upload.fileList"
-            :on-progress="handleFileUploadProgress"
-            :on-success="handleFileSuccess"
-            multiple>
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
-          </el-upload>
-          <img v-show="form.imgSrc" :src="form.imgSrc" width="300px"/>
+              class="avatar-uploader"
+              :action="upload.url"
+              :file-list="upload.fileList"
+              :headers="upload.headers"
+              :show-file-list="false"
+              :on-success="successHandle"
+              :before-upload="beforeUploadHandle">
+              <img v-if="form.imgSrc" :src="form.imgSrc" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="form.status">
@@ -265,6 +262,7 @@ export default {
         // 上传的文件列表
         fileList: []
       },
+      formLoading: false,
     };
   },
   created() {
@@ -379,16 +377,25 @@ export default {
     submitUpload() {
       this.$refs.upload.submit();
     },
-    // 文件上传中处理
-    handleFileUploadProgress(event, file, fileList) {
-      this.upload.isUploading = true;
-    },
-    // 文件上传成功处理
-    handleFileSuccess(response, file, fileList) {
-      this.upload.isUploading = false;
-      this.form.img = response.filePath;
-      this.form.imgSrc = response.fileFullPath;
-    }
+    beforeUploadHandle (file) {
+       this.formLoading = true
+        if (file.type !== 'image/jpg' && file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
+          this.$message.error('只支持jpg、png、gif格式的图片！')
+          return false
+        }
+      },
+      // 上传成功
+      successHandle (response, file, fileList) {
+        this.fileList = fileList
+        if (response && response.code === 200) {
+          this.form.img = response.data.filePath;
+          this.form.imgSrc = response.data.fileFullPath;
+
+        } else {
+          // this.$message.error(response.msg)
+        }
+        this.formLoading = false
+      }
   }
 };
 </script>
@@ -396,4 +403,27 @@ export default {
 .img-class{
   height: 50px;
 }
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
 </style>
