@@ -151,7 +151,6 @@ public class UserController extends BaseController
         temp.setUserStatus(0L);
         temp.setUserLevelId(0L);
         temp.setUserAgent(user.getUserAgent());
-        temp.setIsRealName(1L);
         temp.setRegisterTime(now);
         temp.setRegisterIp("0.0.0.1");
         temp.setLastTime(null);
