@@ -99,6 +99,7 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
+            type="success"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['business:user:query']"
           >用户详情</el-button>
@@ -123,7 +124,7 @@
         <template slot-scope="scope">
           <span>{{scope.row.userLevelId === 0 ? '普通会员' : '未知等级' }}</span>
         </template>
-        </el-table-column>
+      </el-table-column>
       <el-table-column label="推荐人用户名" align="center" prop="userAgent" />
       <el-table-column label="账户余额" align="center" prop="balance" />
       <el-table-column align="center" width="180">
@@ -151,6 +152,20 @@
           <span>{{ parseTime(scope.row.modifyTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column> -->
+      <el-table-column label="会员关联" align="center" width="300px">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="success"
+            @click="queryChange('userName',scope.row.userAgent)"
+          >上级用户</el-button>
+          <el-button
+            size="mini"
+            type="success"
+            @click="queryChange('userAgent',scope.row.userName)"
+          >下级用户</el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -305,6 +320,34 @@
         <el-button @click="balanceCancel">取 消</el-button>
       </div>
     </el-dialog>
+    <!-- 上下级用户弹窗 -->
+    <el-dialog title="详情" :visible.sync="detailsOpen" width="1200px" append-to-body>
+      <el-table :data="detailList">
+        <el-table-column label="用户ID" align="center" prop="id"/>
+        <el-table-column label="邀请码" align="center" prop="inviteCode" />
+        <el-table-column label="姓名" align="center" prop="realName" />
+        <el-table-column label="用户名" align="center" prop="userName" />
+        <el-table-column label="银行名称" align="center" prop="bankName" />
+        <el-table-column label="支行信息" align="center" prop="bankAddr" />
+        <el-table-column label="银行卡号" align="center" prop="bankCardNum" />
+        <el-table-column label="冻结" align="center" prop="userStatus">
+          <template slot-scope="scope">
+            <span>{{scope.row.userStatus === 0 ? '正常' : '冻结' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="会员等级" align="center" prop="userLevelId" >
+          <template slot-scope="scope">
+            <span>{{scope.row.userLevelId === 0 ? '普通会员' : '未知等级' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="推荐人用户名" align="center" prop="userAgent" />
+        <el-table-column label="账户余额" align="center" prop="balance" />
+      </el-table>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="detailsOpen = false">确 定</el-button>
+        <el-button @click="detailsOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -410,6 +453,8 @@ export default {
         { label: '正常', value: 0},
         { label: '已冻结', value: 1},
       ],//银行卡状态
+      detailList:[],//详情数据
+      detailsOpen: false,//上下级详情弹窗
     };
   },
   created() {
@@ -581,6 +626,17 @@ export default {
       this.download('business/user/export', {
         ...this.queryParams
       }, `user_${new Date().getTime()}.xlsx`)
+    },
+    //查询上下级
+    queryChange(type,value){
+      this.loading = true;
+      let obj = {}
+      obj[type] = value
+      listUser(obj).then(response => {
+        this.detailList = response.rows;
+        this.loading = false;
+        this.detailsOpen = true
+      });
     }
   }
 };
