@@ -17,6 +17,7 @@ import com.juhai.business.domain.Deposit;
 import com.juhai.business.domain.Withdraw;
 import com.juhai.business.service.*;
 import com.juhai.web.controller.business.request.OptUserMoneyRequest;
+import org.apache.commons.collections4.queue.PredicatedQueue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,6 +169,18 @@ public class UserController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody User user)
     {
+        boolean matchLoginPwd = ReUtil.isMatch("^[a-zA-Z0-9]{6,12}$", user.getLoginPwd());
+        if (!matchLoginPwd) {
+            return AjaxResult.error("请输入6-12位登录密码");
+        }
+        boolean matchPayPwd = ReUtil.isMatch("^\\d{6}$", user.getPayPwd());
+        if (!matchPayPwd) {
+            return AjaxResult.error("请输入6位支付密码");
+        }
+
+        user.setLoginPwd(SecureUtil.md5(user.getLoginPwd()));
+        user.setPayPwd(SecureUtil.md5(user.getPayPwd()));
+
         return toAjax(userService.updateUser(user));
     }
 
@@ -187,6 +200,9 @@ public class UserController extends BaseController
     @Log(title = "【用户上下分】", businessType = BusinessType.UPDATE)
     @PostMapping("/optMoney")
     public AjaxResult optMoney(@RequestBody OptUserMoneyRequest request) throws Exception {
+        if (StringUtils.isBlank(request.getRemark())) {
+            return AjaxResult.error("请输入备注");
+        }
         User user = userService.getUserByName(request.getUserName());
         if (user == null) {
             return AjaxResult.error("用户不存在.");

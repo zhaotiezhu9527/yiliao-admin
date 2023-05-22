@@ -77,10 +77,6 @@ public class User
     @Excel(name = "上级用户")
     private String userAgent;
 
-    /** 是否实名(0:已实名 1:未实名) */
-//    @Excel(name = "是否实名(0:已实名 1:未实名)")
-    private Long isRealName;
-
     /** 注册时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "注册时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
@@ -239,16 +235,7 @@ public class User
     {
         return userAgent;
     }
-    public void setIsRealName(Long isRealName) 
-    {
-        this.isRealName = isRealName;
-    }
-
-    public Long getIsRealName() 
-    {
-        return isRealName;
-    }
-    public void setRegisterTime(Date registerTime) 
+    public void setRegisterTime(Date registerTime)
     {
         this.registerTime = registerTime;
     }
@@ -312,7 +299,6 @@ public class User
             .append("userStatus", getUserStatus())
             .append("userLevelId", getUserLevelId())
             .append("userAgent", getUserAgent())
-            .append("isRealName", getIsRealName())
             .append("registerTime", getRegisterTime())
             .append("registerIp", getRegisterIp())
             .append("lastTime", getLastTime())
