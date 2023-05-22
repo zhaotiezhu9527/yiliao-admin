@@ -42,3 +42,11 @@ export function delWithdraw(id) {
     method: 'delete'
   })
 }
+// 修改【请填写功能名称】
+export function examineWithdraw(data) {
+  return request({
+    url: '/business/withdraw/check',
+    method: 'post',
+    data: data
+  })
+}

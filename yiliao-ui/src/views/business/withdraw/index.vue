@@ -140,7 +140,7 @@
           <el-button
             size="small"
             type="primary"
-            @click="handleUpdate(scope.row)"
+            @click="handleCheck(scope.row.id)"
             v-hasPermi="['business:withdraw:check']"
             v-if="scope.row.status === 0"
           >审核</el-button>
@@ -217,11 +217,29 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog> -->
+    <!-- 提现审核 -->
+    <el-dialog title="提交审核" :visible.sync="examineOpen" width="500px" append-to-body>
+      <el-form ref="examineform" :model="examineForm" :rules="rules" label-width="80px">
+        <el-form-item label="增减类型" prop="status">
+          <el-select v-model="examineForm.status" placeholder="请选择审核状态">
+            <el-option label="通过" :value="1"></el-option>
+            <el-option label="拒绝" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="examineForm.remark" placeholder="请输入审核备注描述" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="examineSub">确 定</el-button>
+        <el-button @click="examineOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { listWithdraw, getWithdraw, delWithdraw, addWithdraw, updateWithdraw } from "@/api/business/withdraw";
+import { listWithdraw, getWithdraw, delWithdraw, addWithdraw, updateWithdraw, examineWithdraw } from "@/api/business/withdraw";
 import { dateFormat} from '@/utils/auth'
 
 export default {
@@ -264,6 +282,13 @@ export default {
         userName: [
           { required: true, message: "用户名不能为空", trigger: "blur" }
         ],
+        remark: [
+          { required: true, message: "备注不能为空", trigger: "blur" }
+        ],
+        status: [
+          { required: true, message: "请选择审核状态", trigger: "change" }
+        ],
+        
       },
       statusArr: [
         { label: '全部', value: ''},
@@ -305,6 +330,9 @@ export default {
         success: 0,//成功
         wait: 0,//未处理
       },//其他数据
+      listId: '',//提现审核id
+      examineOpen: false,//审核状态
+      examineForm: {},//审核提交数据
     };
   },
   created() {
@@ -424,6 +452,23 @@ export default {
       start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
       this.dateRange[0] = dateFormat("YYYY-mm-dd" , start) + ' 00:00:00'
       this.dateRange[1] = dateFormat("YYYY-mm-dd" , end) + ' 23:59:59'
+    },
+    // 提现审核
+    handleCheck(id){
+      this.listId = id
+      this.examineForm.id = id
+      this.examineOpen = true
+    },
+    examineSub(){
+      this.$refs["examineform"].validate(valid => {
+        if (valid) {
+          examineWithdraw(this.examineForm).then(response => {
+            this.$modal.msgSuccess("操作成功");
+            this.examineOpen = false;
+            this.getList();
+          });
+        }
+      });
     }
   }
 };
