@@ -116,15 +116,16 @@
       </el-table-column>
       <el-table-column label="提现类型" align="center" prop="optType" >
         <template slot-scope="scope">
-          <label v-if="scope.row.optType === 1">提现到银行卡</label>
-          <label v-else-if="scope.row.optType === 2">提现到钱包</label>
+          <span v-if="scope.row.optType === 1">提现到银行卡</span>
+          <span v-else-if="scope.row.optType === 2">提现到钱包</span>
+          <span v-else-if="scope.row.optType === 0">系统扣款</span>
         </template>
       </el-table-column>
       <el-table-column label="处理进度" align="center" prop="status">
         <template slot-scope="scope">
-          <label v-if="scope.row.status === 0">待审核</label>
-          <label v-else-if="scope.row.status === 1">到账成功</label>
-          <label v-else-if="scope.row.status === 2">审核不通过</label>
+          <span v-if="scope.row.status === 0">待审核</span>
+          <span v-else-if="scope.row.status === 1">到账成功</span>
+          <span v-else-if="scope.row.status === 2">审核不通过</span>
         </template>
       </el-table-column>
       <el-table-column label="申请时间" align="center" prop="optTime" width="180">

@@ -104,13 +104,13 @@
       </el-table-column>
       <el-table-column label="类型" align="center" prop="optType" >
         <template slot-scope="scope">
-          <label v-if="scope.row.optType === 1" type="success">系统充值</label>
-          <label v-else-if="scope.row.optType === 2" type="danger">系统扣款</label>
-          <label v-else-if="scope.row.optType === 3" type="danger">提现</label>
-          <label v-else-if="scope.row.optType === 4" type="danger">投资扣款</label>
-          <label v-else-if="scope.row.optType === 5" type="danger">投资回款</label>
-          <label v-else-if="scope.row.optType === 6" type="danger">签到</label>
-          <label v-else type="danger">未知类型</label>
+          <span v-if="scope.row.optType === 1" type="success">系统充值</span>
+          <span v-else-if="scope.row.optType === 2" type="danger">系统扣款</span>
+          <span v-else-if="scope.row.optType === 3" type="danger">提现</span>
+          <span v-else-if="scope.row.optType === 4" type="danger">投资扣款</span>
+          <span v-else-if="scope.row.optType === 5" type="danger">投资回款</span>
+          <span v-else-if="scope.row.optType === 6" type="danger">签到</span>
+          <span v-else type="danger">未知类型</span>
         </template>  
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="optTime" width="180">
