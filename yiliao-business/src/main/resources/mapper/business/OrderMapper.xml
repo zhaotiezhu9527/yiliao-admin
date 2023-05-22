@@ -33,23 +33,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectOrderVo"/>
         <where>  
             <if test="orderNo != null  and orderNo != ''"> and order_no = #{orderNo}</if>
-            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
             <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
-            <if test="realName != null  and realName != ''"> and real_name like concat('%', #{realName}, '%')</if>
-            <if test="amount != null "> and amount = #{amount}</if>
-            <if test="incomeRate != null "> and income_rate = #{incomeRate}</if>
-            <if test="limitTime != null "> and limit_time = #{limitTime}</if>
-            <if test="startTime != null "> and start_time = #{startTime}</if>
-            <if test="endTime != null "> and end_time = #{endTime}</if>
-            <if test="forecastReturnTime != null "> and forecast_return_time = #{forecastReturnTime}</if>
-            <if test="actualReturnTime != null "> and actual_return_time = #{actualReturnTime}</if>
-            <if test="forecastReturnAmount != null "> and forecast_return_amount = #{forecastReturnAmount}</if>
-            <if test="actualReturnAmount != null "> and actual_return_amount = #{actualReturnAmount}</if>
             <if test="status != null "> and status = #{status}</if>
-            <if test="userAgent != null  and userAgent != ''"> and user_agent = #{userAgent}</if>
-            <if test="orderTime != null "> and order_time = #{orderTime}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(order_time,'%Y-%m-%d %H:%i:%S') &gt;= date_format(#{params.beginTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(order_time,'%Y-%m-%d %H:%i:%S') &lt;= date_format(#{params.endTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+<!--            <if test="projectId != null "> and project_id = #{projectId}</if>-->
+<!--            <if test="realName != null  and realName != ''"> and real_name like concat('%', #{realName}, '%')</if>-->
+<!--            <if test="amount != null "> and amount = #{amount}</if>-->
+<!--            <if test="incomeRate != null "> and income_rate = #{incomeRate}</if>-->
+<!--            <if test="limitTime != null "> and limit_time = #{limitTime}</if>-->
+<!--            <if test="startTime != null "> and start_time = #{startTime}</if>-->
+<!--            <if test="endTime != null "> and end_time = #{endTime}</if>-->
+<!--            <if test="forecastReturnTime != null "> and forecast_return_time = #{forecastReturnTime}</if>-->
+<!--            <if test="actualReturnTime != null "> and actual_return_time = #{actualReturnTime}</if>-->
+<!--            <if test="forecastReturnAmount != null "> and forecast_return_amount = #{forecastReturnAmount}</if>-->
+<!--            <if test="actualReturnAmount != null "> and actual_return_amount = #{actualReturnAmount}</if>-->
+<!--            <if test="userAgent != null  and userAgent != ''"> and user_agent = #{userAgent}</if>-->
+<!--            <if test="orderTime != null "> and order_time = #{orderTime}</if>-->
         </where>
+        ORDER BY order_time DESC
     </select>
     
     <select id="selectOrderById" parameterType="Long" resultMap="OrderResult">

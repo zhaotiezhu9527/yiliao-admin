@@ -58,6 +58,10 @@ public class WithdrawController extends BaseController
         for (Withdraw temp : withdraws) {
             if (temp.getStatus().intValue() == 1) {
                 success = NumberUtil.add(success, temp.getOptAmount());
+            } else if (temp.getStatus().intValue() == 0) {
+                wait = NumberUtil.add(wait, temp.getOptAmount());
+            } else if (temp.getStatus().intValue() == 2) {
+                fail = NumberUtil.add(fail, temp.getOptAmount());
             }
         }
         JSONObject other = new JSONObject();

@@ -1,7 +1,12 @@
 package com.juhai.web.controller.business;
 
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.util.NumberUtil;
+import com.alibaba.fastjson2.JSONObject;
+import com.juhai.business.domain.Deposit;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +48,25 @@ public class OrderController extends BaseController
     {
         startPage();
         List<Order> list = orderService.selectOrderList(order);
-        return getDataTable(list);
+        TableDataInfo table = getDataTable(list);
+        // 报表数据
+        List<Order> deposits = orderService.selectOrderList(order);
+        BigDecimal success = new BigDecimal(0);
+        BigDecimal wait = new BigDecimal(0);
+        for (Order temp : deposits) {
+            if (temp.getStatus().intValue() == 1) {
+                success = NumberUtil.add(success, temp.getAmount());
+            } else if (temp.getStatus().intValue() == 0) {
+                wait = NumberUtil.add(wait, temp.getAmount());
+            }
+        }
+        JSONObject other = new JSONObject();
+        other.put("success", success);
+        other.put("wait", wait);
+
+        table.setOther(other);
+
+        return table;
     }
 
     /**

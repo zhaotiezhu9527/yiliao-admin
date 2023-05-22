@@ -149,4 +149,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <!-- 修改用户余额 -->
+    <update id="updateUserBalance">
+        update t_user set balance = balance + #{balance} where balance + #{balance} >= 0 and user_name = #{userName}
+    </update>
+
+    <select id="selectUserByUserName" parameterType="User" resultMap="UserResult">
+        <include refid="selectUserVo"/>
+        where user_name = #{userName}
+    </select>
 </mapper>

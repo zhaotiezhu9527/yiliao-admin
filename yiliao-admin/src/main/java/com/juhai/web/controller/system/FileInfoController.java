@@ -132,7 +132,7 @@ public class FileInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:info:upload')")
     @Log(title = "文件信息", businessType = BusinessType.INSERT)
     @PostMapping("/upload")
-    public FileInfo uploadImage(MultipartFile file) {
+    public AjaxResult uploadImage(MultipartFile file) {
         cn.xuyanwu.spring.file.storage.FileInfo fileInfo = fileStorageService.of(file)
                 .upload();
 
@@ -142,6 +142,6 @@ public class FileInfoController extends BaseController
         info.setFileFullPath(fileInfo.getUrl());
         info.setCreateTime(new Date());
         fileInfoService.insertFileInfo(info);
-        return info;
+        return AjaxResult.success(info);
     }
 }
