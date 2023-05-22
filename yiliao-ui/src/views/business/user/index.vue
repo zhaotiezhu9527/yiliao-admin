@@ -278,7 +278,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         userName: null,
-        userStatus: null,
+        userStatus: "",
         userAgent: null,
         registerTime: null,
       },
