@@ -168,13 +168,18 @@ public class UserController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody User user)
     {
-        boolean matchLoginPwd = ReUtil.isMatch("^[a-zA-Z0-9]{6,12}$", user.getLoginPwd());
-        if (!matchLoginPwd) {
-            return AjaxResult.error("请输入6-12位登录密码");
+        if (StringUtils.isNotBlank(user.getLoginPwd())) {
+            boolean matchLoginPwd = ReUtil.isMatch("^[a-zA-Z0-9]{6,12}$", user.getLoginPwd());
+            if (!matchLoginPwd) {
+                return AjaxResult.error("请输入6-12位登录密码");
+            }
         }
-        boolean matchPayPwd = ReUtil.isMatch("^\\d{6}$", user.getPayPwd());
-        if (!matchPayPwd) {
-            return AjaxResult.error("请输入6位支付密码");
+
+        if (StringUtils.isNotBlank(user.getLoginPwd())) {
+            boolean matchPayPwd = ReUtil.isMatch("^\\d{6}$", user.getPayPwd());
+            if (!matchPayPwd) {
+                return AjaxResult.error("请输入6位支付密码");
+            }
         }
 
         user.setLoginPwd(SecureUtil.md5(user.getLoginPwd()));
@@ -283,8 +288,8 @@ public class UserController extends BaseController
             account.setUserAgent(user.getUserAgent());
             account.setRefNo(orderNo);
             account.setAccountNo(IdUtil.getSnowflakeNextIdStr());
-            accountService.insertAccount(account);
             account.setRemark(request.getRemark());
+            accountService.insertAccount(account);
             // 下分
             return toAjax(true);
         }

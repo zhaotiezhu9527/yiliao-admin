@@ -1,14 +1,19 @@
 package com.juhai.web.controller.business;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.juhai.business.domain.Deposit;
+import com.juhai.web.controller.business.request.WithdrawCheckRequest;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -127,5 +132,40 @@ public class WithdrawController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(withdrawService.deleteWithdrawByIds(ids));
+    }
+
+    /**
+     * 审核【请填写功能名称】
+     */
+    @PreAuthorize("@ss.hasPermi('business:withdraw:check')")
+    @Log(title = "提现审核", businessType = BusinessType.UPDATE)
+    @PostMapping("/check")
+    public AjaxResult check(@RequestBody WithdrawCheckRequest request)
+    {
+
+        Withdraw withdraw = withdrawService.selectWithdrawById(NumberUtils.toLong(request.getId()));
+        if (withdraw.getStatus().intValue() != 0) {
+            return AjaxResult.error("该订单已被审核.");
+        }
+        if (StringUtils.equals(request.getStatus(), "1")) {
+            // 通过
+            Withdraw temp = new Withdraw();
+            temp.setId(withdraw.getId());
+            temp.setStatus(1L);
+            temp.setRemark(request.getRemark());
+            temp.setOperator(getUsername());
+            temp.setCheckTime(new Date());
+            withdrawService.updateWithdraw(temp);
+        } else {
+            // 拒绝
+            Withdraw temp = new Withdraw();
+            temp.setId(withdraw.getId());
+            temp.setStatus(2L);
+            temp.setRemark(request.getRemark());
+            temp.setOperator(getUsername());
+            temp.setCheckTime(new Date());
+            withdrawService.updateWithdraw(temp);
+        }
+        return toAjax(true);
     }
 }
