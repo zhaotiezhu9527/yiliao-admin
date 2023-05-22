@@ -93,14 +93,15 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="用户ID" align="center" prop="id" />
       <el-table-column label="邀请码" align="center" prop="inviteCode" />
-      <el-table-column label="姓名" align="center" prop="realName" />
       <el-table-column label="用户名" align="center" prop="userName" />
+      <el-table-column label="姓名" align="center" prop="realName" />
+      <el-table-column label="账户余额" align="center" prop="balance" />
       <el-table-column label="用户详情" align="center" prop="userName" width="150">
         <template slot-scope="scope">
           <el-button
             size="mini"
             type="success"
-            @click="handleUpdate(scope.row)"
+            @click="handleDetail(scope.row)"
             v-hasPermi="['business:user:query']"
           >用户详情</el-button>
         </template>
@@ -126,7 +127,7 @@
         </template>
       </el-table-column>
       <el-table-column label="推荐人用户名" align="center" prop="userAgent" />
-      <el-table-column label="账户余额" align="center" prop="balance" />
+      
       <el-table-column align="center" width="180">
         <template slot="header">
           <div>注册时间</div>
@@ -195,13 +196,10 @@
     />
 
     <!-- 添加或修改【请填写功能名称】对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="150px">
         <el-form-item label="用户名" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入用户名" />
-        </el-form-item>
-        <el-form-item label="用户余额" prop="balance">
-          <el-input v-model="form.balance" placeholder="请输入用户余额" />
+          <el-input :disabled="true" v-model="form.userName" placeholder="请输入用户名" />
         </el-form-item>
         <el-form-item label="真实姓名" prop="realName">
           <el-input v-model="form.realName" placeholder="请输入真实姓名" />
@@ -209,15 +207,15 @@
         <el-form-item label="身份证号码" prop="idCard">
           <el-input v-model="form.idCard" placeholder="请输入身份证号码" />
         </el-form-item>
-        <el-form-item label="登录密码" prop="loginPwd">
-          <el-input v-model="form.loginPwd" placeholder="请输入登录密码" />
+        <el-form-item label="登录密码">
+          <el-input v-model="form.loginPwd" placeholder="不输入表示不修改" />
         </el-form-item>
-        <el-form-item label="支付密码" prop="payPwd">
-          <el-input v-model="form.payPwd" placeholder="请输入支付密码" />
+        <el-form-item label="支付密码">
+          <el-input v-model="form.payPwd" placeholder="不输入表示不修改支付密码" />
         </el-form-item>
-        <el-form-item label="邀请码" prop="inviteCode">
+        <!-- <el-form-item label="邀请码" prop="inviteCode">
           <el-input v-model="form.inviteCode" placeholder="请输入邀请码" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="钱包地址" prop="walletAddr">
           <el-input v-model="form.walletAddr" placeholder="请输入钱包地址" />
         </el-form-item>
@@ -230,45 +228,12 @@
         <el-form-item label="开户行地址" prop="bankAddr">
           <el-input v-model="form.bankAddr" placeholder="请输入开户行地址" />
         </el-form-item>
-        <el-form-item label="用户等级id" prop="userLevelId">
-          <el-input v-model="form.userLevelId" placeholder="请输入用户等级id" />
-        </el-form-item>
-        <el-form-item label="上级代理用户名" prop="userAgent">
-          <el-input v-model="form.userAgent" placeholder="请输入上级代理用户名" />
-        </el-form-item>
-        <el-form-item label="是否实名(0:已实名 1:未实名)" prop="isRealName">
-          <el-input v-model="form.isRealName" placeholder="请输入是否实名(0:已实名 1:未实名)" />
-        </el-form-item>
-        <el-form-item label="注册时间" prop="registerTime">
-          <el-date-picker clearable
-            v-model="form.registerTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择注册时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="注册Ip" prop="registerIp">
-          <el-input v-model="form.registerIp" placeholder="请输入注册Ip" />
-        </el-form-item>
-        <el-form-item label="上次登录时间" prop="lastTime">
-          <el-date-picker clearable
-            v-model="form.lastTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择上次登录时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="上次登录IP" prop="lastIp">
-          <el-input v-model="form.lastIp" placeholder="请输入上次登录IP" />
-        </el-form-item>
-        <el-form-item label="最后修改时间" prop="modifyTime">
-          <el-date-picker clearable
-            v-model="form.modifyTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择最后修改时间">
-          </el-date-picker>
-        </el-form-item>
+        <!-- <el-form-item label="是否实名" prop="isRealName">
+          <el-select v-model="form.isRealName" placeholder="请选择是否实名">
+            <el-option label="已实名" :value="0"></el-option>
+            <el-option label="未实名" :value="1"></el-option>
+          </el-select>
+        </el-form-item> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -346,6 +311,63 @@
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="detailsOpen = false">确 定</el-button>
         <el-button @click="detailsOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
+    <!-- 用户详情 -->
+    <el-dialog title="用户详情" :visible.sync="userOpen" width="800px" append-to-body>
+      <el-form ref="form" :model="userform" :rules="rules" label-width="150px">
+        <el-form-item label="ID">
+          <el-input :disabled="true" v-model="userform.id" />
+        </el-form-item>
+        <el-form-item label="推荐人">
+          <el-input :disabled="true" v-model="userform.userAgent" />
+        </el-form-item>
+        <el-form-item label="用户名">
+          <el-input :disabled="true" v-model="userform.userName"/>
+        </el-form-item>
+        <el-form-item label="真实姓名">
+          <el-input :disabled="true" v-model="userform.realName"/>
+        </el-form-item>
+        <el-form-item label="身份证号码">
+          <el-input :disabled="true" v-model="userform.idCard" />
+        </el-form-item>
+        <el-form-item label="USDT地址">
+          <el-input :disabled="true" v-model="userform.walletAddr"/>
+        </el-form-item>
+        <el-form-item label="银行名称">
+          <el-input :disabled="true" v-model="userform.bankName"/>
+        </el-form-item>
+        <el-form-item label="支行地址">
+          <el-input :disabled="true" v-model="userform.bankAddr" />
+        </el-form-item>
+        <el-form-item label="银行卡号">
+          <el-input :disabled="true" v-model="userform.bankCardNum" />
+        </el-form-item>
+        <el-form-item label="登录密码">
+          <el-input :disabled="true" v-model="userform.loginPwd" />
+        </el-form-item>
+        <el-form-item label="交易密码">
+          <el-input :disabled="true" v-model="userform.payPwd" />
+        </el-form-item>
+        <el-form-item label="余额">
+          <el-input :disabled="true" v-model="userform.balance" />
+        </el-form-item>
+        <el-form-item label="是否锁定">
+          <el-select :disabled="true" v-model="userform.userStatus" placeholder="请选择">
+            <el-option label="正常" :value="0"></el-option>
+            <el-option label="锁定" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="会员等级">
+          <el-select :disabled="true" v-model="userform.userLevelId" placeholder="请选择">
+            <el-option label="普通会员" :value="0"></el-option>
+            <el-option label="未知等级" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="userOpen = false">确 定</el-button>
+        <el-button @click="userOpen = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -455,6 +477,10 @@ export default {
       ],//银行卡状态
       detailList:[],//详情数据
       detailsOpen: false,//上下级详情弹窗
+      // 用户详情数据
+      userform: {},
+      // 用户详情弹窗状态
+      userOpen: false,
     };
   },
   created() {
@@ -587,8 +613,18 @@ export default {
       const id = row.id || this.ids
       getUser(id).then(response => {
         this.form = response.data;
+        this.form.loginPwd = ''
+        this.form.payPwd = ''
         this.open = true;
-        this.title = "修改【请填写功能名称】";
+        this.title = "修改";
+      });
+    },
+    // 查看详情 
+    handleDetail(row){
+      const id = row.id || this.ids
+      getUser(id).then(response => {
+        this.userform = response.data;
+        this.userOpen = true;
       });
     },
     /** 提交按钮 */
