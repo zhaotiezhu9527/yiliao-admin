@@ -174,8 +174,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="form.status">
-            <el-option label="开启" value="0"></el-option>
-            <el-option label="关闭" value="1"></el-option>
+            <el-option label="开启" :value="0"></el-option>
+            <el-option label="关闭" :value="1"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -333,6 +333,7 @@ export default {
       const id = row.id || this.ids
       getProject(id).then(response => {
         this.form = response.data;
+        this.form['imgSrc'] = response.data.img;
         this.open = true;
         this.title = "修改";
       });
