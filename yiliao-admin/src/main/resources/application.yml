@@ -70,13 +70,13 @@ spring:
   # redis 配置
   redis:
     # 地址
-    host: localhost
+    host: r-gs5nsu05rwrseovmrmpd.redis.singapore.rds.aliyuncs.com
     # 端口，默认为6379
     port: 6379
     # 数据库索引
     database: 0
     # 密码
-    password: 
+    password: 30Q84d8GE4LBYzbM
     # 连接超时时间
     timeout: 10s
     lettuce:
@@ -89,7 +89,18 @@ spring:
         max-active: 8
         # #连接池最大阻塞等待时间（使用负值表示没有限制）
         max-wait: -1ms
-
+  #OSS
+  file-storage:
+    default-platform: aliyun-oss
+    aliyun-oss:
+      - platform: aliyun-oss
+        enable-storage: true
+        access-key: LTAI5tB7AivgoqsHAnWiFUc9
+        secret-key: saIzSztG6c73ATXThx8dvxE87uAJhD
+        end-point: oss-ap-southeast-1.aliyuncs.com
+        bucket-name: juhaijituan
+        domain: https://juhaijituan.oss-ap-southeast-1.aliyuncs.com/
+        base-path: yiliao/
 # token配置
 token:
     # 令牌自定义标识

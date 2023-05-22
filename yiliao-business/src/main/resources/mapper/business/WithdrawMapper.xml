@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juhai.business.mapper.WithdrawMapper">
+    
+    <resultMap type="Withdraw" id="WithdrawResult">
+        <result property="id"    column="id"    />
+        <result property="orderNo"    column="order_no"    />
+        <result property="userName"    column="user_name"    />
+        <result property="optAmount"    column="opt_amount"    />
+        <result property="beforeAmount"    column="before_amount"    />
+        <result property="afterAmount"    column="after_amount"    />
+        <result property="walletAddr"    column="wallet_addr"    />
+        <result property="bankCardNum"    column="bank_card_num"    />
+        <result property="realName"    column="real_name"    />
+        <result property="bankName"    column="bank_name"    />
+        <result property="bankAddr"    column="bank_addr"    />
+        <result property="optType"    column="opt_type"    />
+        <result property="status"    column="status"    />
+        <result property="optTime"    column="opt_time"    />
+        <result property="checkTime"    column="check_time"    />
+        <result property="operator"    column="operator"    />
+        <result property="userAgent"    column="user_agent"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectWithdrawVo">
+        select id, order_no, user_name, opt_amount, before_amount, after_amount, wallet_addr, bank_card_num, real_name, bank_name, bank_addr, opt_type, status, opt_time, check_time, operator, user_agent, remark from t_withdraw
+    </sql>
+
+    <select id="selectWithdrawList" parameterType="Withdraw" resultMap="WithdrawResult">
+        <include refid="selectWithdrawVo"/>
+        <where>  
+            <if test="orderNo != null  and orderNo != ''"> and order_no = #{orderNo}</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+<!--            <if test="optAmount != null "> and opt_amount = #{optAmount}</if>-->
+<!--            <if test="beforeAmount != null "> and before_amount = #{beforeAmount}</if>-->
+<!--            <if test="afterAmount != null "> and after_amount = #{afterAmount}</if>-->
+<!--            <if test="walletAddr != null  and walletAddr != ''"> and wallet_addr = #{walletAddr}</if>-->
+<!--            <if test="bankCardNum != null  and bankCardNum != ''"> and bank_card_num = #{bankCardNum}</if>-->
+<!--            <if test="bankName != null  and bankName != ''"> and bank_name like concat('%', #{bankName}, '%')</if>-->
+<!--            <if test="bankAddr != null  and bankAddr != ''"> and bank_addr = #{bankAddr}</if>-->
+            <if test="optType != null "> and opt_type = #{optType}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(opt_time,'%Y-%m-%d %H:%i:%S') &gt;= date_format(#{params.beginTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(opt_time,'%Y-%m-%d %H:%i:%S') &lt;= date_format(#{params.endTime},'%Y-%m-%d %H:%i:%S')
+            </if>
+<!--            <if test="optTime != null "> and opt_time = #{optTime}</if>-->
+<!--            <if test="checkTime != null "> and check_time = #{checkTime}</if>-->
+<!--            <if test="operator != null  and operator != ''"> and operator = #{operator}</if>-->
+<!--            <if test="userAgent != null  and userAgent != ''"> and user_agent = #{userAgent}</if>-->
+        </where>
+        ORDER BY opt_time DESC
+    </select>
+    
+    <select id="selectWithdrawById" parameterType="Long" resultMap="WithdrawResult">
+        <include refid="selectWithdrawVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWithdraw" parameterType="Withdraw" useGeneratedKeys="true" keyProperty="id">
+        insert into t_withdraw
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">order_no,</if>
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="optAmount != null">opt_amount,</if>
+            <if test="beforeAmount != null">before_amount,</if>
+            <if test="afterAmount != null">after_amount,</if>
+            <if test="walletAddr != null">wallet_addr,</if>
+            <if test="bankCardNum != null">bank_card_num,</if>
+            <if test="realName != null">real_name,</if>
+            <if test="bankName != null">bank_name,</if>
+            <if test="bankAddr != null">bank_addr,</if>
+            <if test="optType != null">opt_type,</if>
+            <if test="status != null">status,</if>
+            <if test="optTime != null">opt_time,</if>
+            <if test="checkTime != null">check_time,</if>
+            <if test="operator != null">operator,</if>
+            <if test="userAgent != null">user_agent,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">#{orderNo},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="optAmount != null">#{optAmount},</if>
+            <if test="beforeAmount != null">#{beforeAmount},</if>
+            <if test="afterAmount != null">#{afterAmount},</if>
+            <if test="walletAddr != null">#{walletAddr},</if>
+            <if test="bankCardNum != null">#{bankCardNum},</if>
+            <if test="realName != null">#{realName},</if>
+            <if test="bankName != null">#{bankName},</if>
+            <if test="bankAddr != null">#{bankAddr},</if>
+            <if test="optType != null">#{optType},</if>
+            <if test="status != null">#{status},</if>
+            <if test="optTime != null">#{optTime},</if>
+            <if test="checkTime != null">#{checkTime},</if>
+            <if test="operator != null">#{operator},</if>
+            <if test="userAgent != null">#{userAgent},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWithdraw" parameterType="Withdraw">
+        update t_withdraw
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderNo != null and orderNo != ''">order_no = #{orderNo},</if>
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="optAmount != null">opt_amount = #{optAmount},</if>
+            <if test="beforeAmount != null">before_amount = #{beforeAmount},</if>
+            <if test="afterAmount != null">after_amount = #{afterAmount},</if>
+            <if test="walletAddr != null">wallet_addr = #{walletAddr},</if>
+            <if test="bankCardNum != null">bank_card_num = #{bankCardNum},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="bankName != null">bank_name = #{bankName},</if>
+            <if test="bankAddr != null">bank_addr = #{bankAddr},</if>
+            <if test="optType != null">opt_type = #{optType},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="optTime != null">opt_time = #{optTime},</if>
+            <if test="checkTime != null">check_time = #{checkTime},</if>
+            <if test="operator != null">operator = #{operator},</if>
+            <if test="userAgent != null">user_agent = #{userAgent},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWithdrawById" parameterType="Long">
+        delete from t_withdraw where id = #{id}
+    </delete>
+
+    <delete id="deleteWithdrawByIds" parameterType="String">
+        delete from t_withdraw where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

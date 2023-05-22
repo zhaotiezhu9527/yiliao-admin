@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juhai.business.mapper.ParamterMapper">
+    
+    <resultMap type="Paramter" id="ParamterResult">
+        <result property="id"    column="id"    />
+        <result property="paramName"    column="param_name"    />
+        <result property="paramKey"    column="param_key"    />
+        <result property="paramValue"    column="param_value"    />
+        <result property="isShow"    column="is_show"    />
+    </resultMap>
+
+    <sql id="selectParamterVo">
+        select id, param_name, param_key, param_value, is_show from t_paramter
+    </sql>
+
+    <select id="selectParamterList" parameterType="Paramter" resultMap="ParamterResult">
+        <include refid="selectParamterVo"/>
+        <where>  
+            <if test="paramName != null  and paramName != ''"> and param_name like concat('%', #{paramName}, '%')</if>
+            <if test="paramKey != null  and paramKey != ''"> and param_key = #{paramKey}</if>
+            <if test="paramValue != null  and paramValue != ''"> and param_value = #{paramValue}</if>
+            <if test="isShow != null "> and is_show = #{isShow}</if>
+        </where>
+    </select>
+    
+    <select id="selectParamterById" parameterType="Long" resultMap="ParamterResult">
+        <include refid="selectParamterVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertParamter" parameterType="Paramter" useGeneratedKeys="true" keyProperty="id">
+        insert into t_paramter
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paramName != null">param_name,</if>
+            <if test="paramKey != null and paramKey != ''">param_key,</if>
+            <if test="paramValue != null">param_value,</if>
+            <if test="isShow != null">is_show,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paramName != null">#{paramName},</if>
+            <if test="paramKey != null and paramKey != ''">#{paramKey},</if>
+            <if test="paramValue != null">#{paramValue},</if>
+            <if test="isShow != null">#{isShow},</if>
+         </trim>
+    </insert>
+
+    <update id="updateParamter" parameterType="Paramter">
+        update t_paramter
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paramName != null">param_name = #{paramName},</if>
+            <if test="paramKey != null and paramKey != ''">param_key = #{paramKey},</if>
+            <if test="paramValue != null">param_value = #{paramValue},</if>
+            <if test="isShow != null">is_show = #{isShow},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteParamterById" parameterType="Long">
+        delete from t_paramter where id = #{id}
+    </delete>
+
+    <delete id="deleteParamterByIds" parameterType="String">
+        delete from t_paramter where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
