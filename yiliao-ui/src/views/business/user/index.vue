@@ -54,9 +54,18 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['business:user:add']"
-        >新增</el-button>
+        >新增会员</el-button>
       </el-col>
       <el-col :span="1.5">
+        <el-button
+          type="success"
+          plain
+          size="mini"
+          @click="handleBalance"
+          v-hasPermi="['business:user:optMoney']"
+        >增减余额</el-button>
+      </el-col>
+      <!-- <el-col :span="1.5">
         <el-button
           type="success"
           plain
@@ -66,18 +75,7 @@
           @click="handleUpdate"
           v-hasPermi="['business:user:edit']"
         >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['business:user:remove']"
-        >删除</el-button>
-      </el-col>
+      </el-col> -->
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -128,13 +126,32 @@
         </el-table-column>
       <el-table-column label="推荐人用户名" align="center" prop="userAgent" />
       <el-table-column label="账户余额" align="center" prop="balance" />
-      <el-table-column label="注册时间" align="center" prop="registerTime" width="180"/>
+      <el-table-column align="center" width="180">
+        <template slot="header">
+          <div>注册时间</div>
+          <div>上次登陆时间</div>
+        </template>
+        <template slot-scope="scope">
+          <div>{{ scope.row.registerTime }}</div>
+          <div>{{ scope.row.lastTime }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" width="180">
+        <template slot="header">
+          <div>注册IP</div>
+          <div>上次登陆IP</div>
+        </template>
+        <template slot-scope="scope">
+          <div>{{ scope.row.registerIp }}</div>
+          <div>{{ scope.row.lastIp }}</div>
+        </template>
+      </el-table-column>
       <!-- <el-table-column label="最后修改时间" align="center" prop="modifyTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.modifyTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column> -->
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -143,13 +160,13 @@
             @click="handleUpdate(scope.row)"
             v-hasPermi="['business:user:edit']"
           >修改</el-button>
-          <el-button
+          <!-- <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['business:user:remove']"
-          >删除</el-button>
+          >删除</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -243,11 +260,56 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+    <!-- 添加对话框 -->
+    <el-dialog title="添加会员" :visible.sync="addOpen" width="500px" append-to-body>
+      <el-form ref="addform" :model="addForm" :rules="rules" label-width="80px">
+        <el-form-item label="推荐人" prop="userAgent">
+          <el-input v-model="addForm.userAgent" placeholder="请输入推荐人用户名" />
+        </el-form-item>
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="addForm.userName" placeholder="请输入4-12位数字或字母" />
+        </el-form-item>
+        <el-form-item label="密码" prop="loginPwd">
+          <el-input v-model="addForm.loginPwd" placeholder="请输入6-12位数字或字母" />
+        </el-form-item>
+        <el-form-item label="支付密码" prop="payPwd">
+          <el-input v-model="addForm.payPwd" placeholder="请输入6位数字" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="addSub">确 定</el-button>
+        <el-button @click="addCancel">取 消</el-button>
+      </div>
+    </el-dialog>
+    <!-- 增减余额对话框 -->
+    <el-dialog title="增减余额" :visible.sync="balanceOpen" width="500px" append-to-body>
+      <el-form ref="balanceform" :model="balanceForm" :rules="rules" label-width="80px">
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="balanceForm.userName" placeholder="请输入4-12位数字或字母" />
+        </el-form-item>
+        <el-form-item label="金额" prop="money">
+          <el-input v-model="balanceForm.money" placeholder="请输入金额" />
+        </el-form-item>
+        <el-form-item label="增减类型" prop="type">
+          <el-select v-model="balanceForm.type" placeholder="请选择上下分类型">
+            <el-option label="上分" :value="1"></el-option>
+            <el-option label="下分" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="修改理由" prop="remark">
+          <el-input v-model="balanceForm.remark" placeholder="请填写备注" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="balanceSub">确 定</el-button>
+        <el-button @click="balanceCancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser } from "@/api/business/user";
+import { listUser, getUser, delUser, addUser, updateUser,balanceUser } from "@/api/business/user";
 
 export default {
   name: "User",
@@ -271,6 +333,10 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 是否显示添加弹出层
+      addOpen: false,
+      // 是否显示增减余额弹出层
+      balanceOpen: false,
       // 时间
       dateRange:[],
       // 查询参数
@@ -284,10 +350,32 @@ export default {
       },
       // 表单参数
       form: {},
+      // 表单参数
+      addForm: {},
+      // 增减余额表单数据
+      balanceForm: {},
       // 表单校验
       rules: {
         userName: [
           { required: true, message: "用户名不能为空", trigger: "blur" }
+        ],
+        userAgent: [
+          { required: true, message: "推荐人不能为空", trigger: "blur" }
+        ],
+        loginPwd: [
+          { required: true, message: "用户名不能为空", trigger: "blur" }
+        ],
+        payPwd: [
+          { required: true, message: "用户名不能为空", trigger: "blur" }
+        ],
+        money: [
+          { required: true, message: "金额不能为空", trigger: "blur" }
+        ],
+        type: [
+          { required: true, message: "请选择类型", trigger: "change" }
+        ],
+        remark: [
+          { required: true, message: "请填写备注", trigger: "blur" }
         ],
       },
       pickerOptions: {
@@ -316,12 +404,12 @@ export default {
               picker.$emit('pick', [start, end]);
             }
           }]
-        },
-        statusArr: [
-          { label: '全部', value: ''},
-          { label: '正常', value: 0},
-          { label: '已冻结', value: 1},
-        ],//银行卡状态
+      },
+      statusArr: [
+        { label: '全部', value: ''},
+        { label: '正常', value: 0},
+        { label: '已冻结', value: 1},
+      ],//银行卡状态
     };
   },
   created() {
@@ -341,6 +429,26 @@ export default {
     cancel() {
       this.open = false;
       this.reset();
+    },
+    // 添加取消按钮
+    addCancel() {
+      this.addOpen = false;
+      this.adReset();
+    },
+    // 增减余额表单重置
+    balanceCancel(){
+      this.balanceOpen = false;
+      this.balanceReset();
+    },
+    // 表单重置
+    addReset() {
+      this.form = {
+        userName: null,
+        userAgent: null,
+        loginPwd: null,
+        payPwd: null,
+      };
+      this.resetForm("addform");
     },
     // 表单重置
     reset() {
@@ -369,6 +477,16 @@ export default {
       };
       this.resetForm("form");
     },
+    // 余额表单重置
+    balanceReset() {
+      this.balanceForm = {
+        userName: null,
+        money: null,
+        type: null,
+        remark: null,
+      };
+      this.resetForm("balanceform");
+    },
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1;
@@ -388,8 +506,35 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      this.open = true;
-      this.title = "添加【请填写功能名称】";
+      this.addOpen = true;
+    },
+    // 增减余额
+    handleBalance(){
+      this.balanceReset();
+      this.balanceOpen = true;
+    },
+    addSub(){
+      this.$refs["addform"].validate(valid => {
+        if (valid) {
+          addUser(this.addForm).then(response => {
+            this.$modal.msgSuccess("新增成功");
+            this.addOpen = false;
+            this.getList();
+          });
+        }
+      });
+    },
+    // 增减余额
+    balanceSub(){
+      this.$refs["balanceform"].validate(valid => {
+        if (valid) {
+          balanceUser(this.balanceForm).then(response => {
+            this.$modal.msgSuccess("操作成功");
+            this.balanceOpen = false;
+            this.getList();
+          });
+        }
+      });
     },
     /** 修改按钮操作 */
     handleUpdate(row) {

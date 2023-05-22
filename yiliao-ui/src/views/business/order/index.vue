@@ -51,6 +51,12 @@
       </el-form-item>
     </el-form>
 
+    <!-- 其他数据 -->
+    <div class="details">
+      <label>已收益（总）：<span>{{other.success}}元</span></label> ｜
+      <label>未收益（总）：<span>{{other.wait}}元</span></label> 
+    </div>
+
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -315,8 +321,8 @@ export default {
         }]
       },
       other: {
-        expenditure: 0,//支出
-        income: 0,//收入
+        success: 0,//已收益
+        wait: 0,//未收益
       },//其他数据
     };
   },
@@ -442,3 +448,11 @@ export default {
   }
 };
 </script>
+<style scoped>
+.details{
+  margin-bottom: 20px;
+}
+.details span{
+  color: red;
+}
+</style>
