@@ -1,5 +1,6 @@
 package com.juhai.business.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,5 +90,18 @@ public class UserServiceImpl implements IUserService
     public int deleteUserById(Long id)
     {
         return userMapper.deleteUserById(id);
+    }
+
+    @Override
+    public User getUserByName(String userName) {
+        return userMapper.selectUserByUserName(userName);
+    }
+
+    @Override
+    public void updateUserBalance(String userName, BigDecimal balance) throws Exception {
+        int updateUserBalance = userMapper.updateUserBalance(userName, balance);
+        if (updateUserBalance <= 0) {
+            throw new Exception("修改用户余额失败.");
+        }
     }
 }

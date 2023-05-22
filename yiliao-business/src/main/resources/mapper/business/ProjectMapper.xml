@@ -43,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--            <if test="modifyTime != null "> and modify_time = #{modifyTime}</if>-->
 <!--            <if test="img != null  and img != ''"> and img = #{img}</if>-->
         </where>
+        ORDER BY id DESC
     </select>
     
     <select id="selectProjectById" parameterType="Long" resultMap="ProjectResult">

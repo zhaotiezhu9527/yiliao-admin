@@ -30,7 +30,7 @@ public class Order extends BaseEntity
     private String userName;
 
     /** 项目ID */
-    @Excel(name = "项目ID")
+//    @Excel(name = "项目ID")
     private Long projectId;
 
     /** 项目名 */
@@ -54,23 +54,23 @@ public class Order extends BaseEntity
     private Long limitTime;
 
     /** 开始时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "开始时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "开始时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /** 结束时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "结束时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "结束时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /** 预计返款时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "预计返款时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "预计返款时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date forecastReturnTime;
 
     /** 实际返款时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "实际返款时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "实际返款时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date actualReturnTime;
 
     /** 预计返款利息 */
@@ -82,16 +82,16 @@ public class Order extends BaseEntity
     private BigDecimal actualReturnAmount;
 
     /** 0:未结算 1:已结算 2:结算异常 */
-    @Excel(name = "0:未结算 1:已结算 2:结算异常")
+    @Excel(name = "状态",readConverterExp = "0:未结算,1=已结算")
     private Long status;
 
     /** 上级代理 */
-    @Excel(name = "上级代理")
+//    @Excel(name = "上级代理")
     private String userAgent;
 
     /** 订单时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "订单时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "订单时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date orderTime;
 
     public void setId(Long id) 

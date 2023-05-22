@@ -80,7 +80,13 @@ public class ProjectController extends BaseController
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
-        return success(projectService.selectProjectById(id));
+        Project project = projectService.selectProjectById(id);
+
+        Map<String, String> params = paramterService.getAllParamByMap();
+        String resourceDomain = params.get("resource_domain");
+        project.setImg(resourceDomain + project.getImg());
+
+        return success(project);
     }
 
     /**

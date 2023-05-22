@@ -1,5 +1,6 @@
 package com.juhai.business.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import com.juhai.business.domain.User;
 
@@ -58,4 +59,20 @@ public interface IUserService
      * @return 结果
      */
     public int deleteUserById(Long id);
+
+    /**
+     * 根据用户名查询用户信息
+     * @param userName
+     * @return
+     */
+    User getUserByName(String userName);
+
+
+    /**
+     * 操作用户金额
+     * @param userName
+     * @param balance
+     * @throws Exception
+     */
+    void updateUserBalance(String userName, BigDecimal balance) throws Exception;
 }
