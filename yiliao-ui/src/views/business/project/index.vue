@@ -66,6 +66,11 @@
       <el-table-column label="id" align="center" prop="id" />
       <el-table-column label="排序" align="center" prop="sort" />
       <el-table-column label="项目名称" align="center" prop="projectName" />
+      <el-table-column label="图片" align="center" prop="img">
+        <template slot-scope="scope">
+          <img class="img-class" :src="scope.row.img" />
+        </template> 
+      </el-table-column>
       <el-table-column label="项目金额(万元)" align="center" prop="projectAmount" />
       <el-table-column label="收益率（%）" align="center" prop="incomeRate" />
       <el-table-column label="期限(分钟)" align="center" prop="limitTime" />
@@ -115,8 +120,8 @@
     />
 
     <!-- 添加或修改【请填写功能名称】对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="150px">
         <el-form-item label="产品名称" prop="projectName">
           <el-input v-model="form.projectName" placeholder="请输入产品名称" />
         </el-form-item>
@@ -133,37 +138,26 @@
           <el-input v-model="form.minAmount" placeholder="请输入起投金额" />
         </el-form-item>
         <el-form-item label="开始时间" prop="startTime">
-          <el-date-picker clearable
+          <el-date-picker
             v-model="form.startTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择开始时间">
+            type="datetime"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="结束时间" prop="endTime">
-          <el-date-picker clearable
+          <el-date-picker
             v-model="form.endTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择结束时间">
+            type="datetime"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="项目进度" prop="schedule">
           <el-input v-model="form.schedule" placeholder="请输入项目进度" />
         </el-form-item>
-        <el-form-item label="担保公司" prop="guaranteeCompany">
-          <el-input v-model="form.guaranteeCompany" placeholder="请输入担保公司" />
-        </el-form-item>
         <el-form-item label="排序号(值越大越靠前)" prop="sort">
           <el-input v-model="form.sort" placeholder="请输入排序号(值越大越靠前)" />
-        </el-form-item>
-        <el-form-item label="最后修改时间" prop="modifyTime">
-          <el-date-picker clearable
-            v-model="form.modifyTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择最后修改时间">
-          </el-date-picker>
         </el-form-item>
         <el-form-item label="图片上传" prop="img">
           <el-upload
@@ -173,11 +167,19 @@
             :headers="upload.headers"
             :file-list="upload.fileList"
             :on-progress="handleFileUploadProgress"
+            :on-success="handleFileSuccess"
             multiple>
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
+          <img v-show="form.imgSrc" :src="form.imgSrc" width="300px"/>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status">
+            <el-option label="开启" value="0"></el-option>
+            <el-option label="关闭" value="1"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -224,6 +226,33 @@ export default {
       form: {},
       // 表单校验
       rules: {
+        endTime: [
+          { required: true, message: "请选择结束时间", trigger: "blur" }
+        ],
+        startTime: [
+          { required: true, message: "请选择开始时间", trigger: "blur" }
+        ],
+        incomeRate: [
+          { required: true, message: "请输入收益率", trigger: "blur" }
+        ],
+        limitTime: [
+          { required: true, message: "请输入期限", trigger: "blur" }
+        ],
+        status: [
+          { required: true, message: "请选择状态", trigger: "blur" }
+        ],
+        projectName: [
+          { required: true, message: "请输入产品名称", trigger: "blur" }
+        ],
+        projectAmount: [
+          { required: true, message: "请输入项目金额", trigger: "blur" }
+        ],
+        minAmount: [
+          { required: true, message: "请输入起投金额", trigger: "blur" }
+        ],
+        schedule: [
+          { required: true, message: "请输入项目进度", trigger: "blur" }
+        ],
       },
       // 上传参数
       upload: {
@@ -297,7 +326,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加【请填写功能名称】";
+      this.title = "添加";
       this.upload.fileList = [];
     },
     /** 修改按钮操作 */
@@ -307,7 +336,7 @@ export default {
       getProject(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改【请填写功能名称】";
+        this.title = "修改";
       });
     },
     /** 提交按钮 */
@@ -357,9 +386,14 @@ export default {
     // 文件上传成功处理
     handleFileSuccess(response, file, fileList) {
       this.upload.isUploading = false;
-      this.form.filePath = response.url;
-      this.msgSuccess(response.msg);
+      this.form.img = response.filePath;
+      this.form.imgSrc = response.fileFullPath;
     }
   }
 };
 </script>
+<style>
+.img-class{
+  height: 50px;
+}
+</style>
