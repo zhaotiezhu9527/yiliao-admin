@@ -383,6 +383,7 @@
 
 <script>
 import { listUser, getUser, delUser, addUser, updateUser,balanceUser } from "@/api/business/user";
+import { dateFormat} from '@/utils/auth'
 
 export default {
   name: "User",
@@ -498,6 +499,7 @@ export default {
     };
   },
   created() {
+    this.getDefaultTime()
     this.getList();
   },
   methods: {
@@ -689,7 +691,14 @@ export default {
         console.log(this.detailsTotal)
         this.detailsOpen = true
       });
-    }
+    },
+    getDefaultTime() {
+      let end = new Date();
+      let start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+      this.dateRange[0] = dateFormat("YYYY-mm-dd" , start) + ' 00:00:00'
+      this.dateRange[1] = dateFormat("YYYY-mm-dd" , end) + ' 23:59:59'
+    },
   }
 };
 </script>
