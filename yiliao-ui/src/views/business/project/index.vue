@@ -68,7 +68,7 @@
       <el-table-column label="项目名称" align="center" prop="projectName" />
       <el-table-column label="图片" align="center" prop="img">
         <template slot-scope="scope">
-          <img class="img-class" :src="scope.row.img" />
+          <img class="img-class" :src="resourceDomain.resourceDomain + scope.row.img" />
         </template> 
       </el-table-column>
       <el-table-column label="项目金额(万元)" align="center" prop="projectAmount" />
@@ -168,7 +168,7 @@
               :show-file-list="false"
               :on-success="successHandle"
               :before-upload="beforeUploadHandle">
-              <img v-if="form.imgSrc" :src="form.imgSrc" class="avatar">
+              <img v-if="form.img" :src="resourceDomain.resourceDomain + form.img" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
         </el-form-item>
@@ -190,6 +190,7 @@
 <script>
 import { listProject, getProject, delProject, addProject, updateProject } from "@/api/business/project";
 import { getToken } from "@/utils/auth";
+import Cookies from "js-cookie";
 
 export default {
   name: "Project",
@@ -263,10 +264,12 @@ export default {
         fileList: []
       },
       formLoading: false,
+      resourceDomain: {},
     };
   },
   created() {
     this.getList();
+    this.getCookie()
   },
   methods: {
     /** 查询【请填写功能名称】列表 */
@@ -333,7 +336,6 @@ export default {
       const id = row.id || this.ids
       getProject(id).then(response => {
         this.form = response.data;
-        this.form['imgSrc'] = response.data.img;
         this.open = true;
         this.title = "修改";
       });
@@ -385,18 +387,20 @@ export default {
           return false
         }
       },
-      // 上传成功
-      successHandle (response, file, fileList) {
-        this.fileList = fileList
-        if (response && response.code === 200) {
-          this.form.img = response.data.filePath;
-          this.form.imgSrc = response.data.fileFullPath;
-
-        } else {
-          // this.$message.error(response.msg)
-        }
-        this.formLoading = false
+    // 上传成功
+    successHandle (response, file, fileList) {
+      this.fileList = fileList
+      if (response && response.code === 200) {
+        this.form.img = response.data.filePath;
+      } else {
+        // this.$message.error(response.msg)
       }
+      this.formLoading = false
+    },
+    getCookie() {
+      this.resourceDomain = JSON.parse(Cookies.get("config"));
+      console.log(this.resourceDomain)
+    }
   }
 };
 </script>
