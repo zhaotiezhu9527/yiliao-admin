@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <artifactId>yiliao-admin</artifactId>
-
+    <version>1.0.2</version>
     <description>
         web服务入口
     </description>
@@ -83,6 +83,22 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+        <!-- 注册中心 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <!-- 配置中心 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -102,15 +118,53 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>   
-                <groupId>org.apache.maven.plugins</groupId>   
-                <artifactId>maven-war-plugin</artifactId>   
-                <version>3.1.0</version>   
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.1.0</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <warName>${project.artifactId}</warName>
-                </configuration>   
-           </plugin>   
+                </configuration>
+           </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <!--将插件绑定在某个phase执行-->
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <!--用户只需执行mvn package ，就会自动执行mvn docker:build-->
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!--指定生成的镜像名-->
+                    <imageName>registry-intl.ap-southeast-1.aliyuncs.com/juhai/yiliao-admin</imageName>
+                    <!--指定标签-->
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                    </imageTags>
+                    <!-- 指定 Dockerfile 路径-->
+                    <dockerDirectory>${project.basedir}</dockerDirectory>
+                    <!--指定远程 docker api地址-->
+                    <dockerHost>http://8.222.224.10:2375</dockerHost>
+                    <!-- 这里是复制 jar 包到 docker 容器指定目录配置 -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <!--jar 包所在的路径  此处配置的 即对应 target 目录-->
+                            <directory>${project.build.directory}</directory>
+                            <!-- 需要包含的 jar包 ，这里对应的是 Dockerfile中添加的文件名　-->
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
         </plugins>
         <finalName>${project.artifactId}</finalName>
     </build>

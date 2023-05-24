@@ -175,7 +175,7 @@ public class UserController extends BaseController
             }
         }
 
-        if (StringUtils.isNotBlank(user.getLoginPwd())) {
+        if (StringUtils.isNotBlank(user.getPayPwd())) {
             boolean matchPayPwd = ReUtil.isMatch("^\\d{6}$", user.getPayPwd());
             if (!matchPayPwd) {
                 return AjaxResult.error("请输入6位支付密码");

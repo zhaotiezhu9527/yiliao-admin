@@ -60,13 +60,13 @@ public class FileInfoController extends BaseController
     {
         startPage();
         List<FileInfo> list = fileInfoService.selectFileInfoList(fileInfo);
-        if (CollUtil.isNotEmpty(list)) {
-            Map<String, String> params = paramterService.getAllParamByMap();
-            String resourceDomain = params.get("resource_domain");
-            for (FileInfo temp : list) {
-                temp.setFileFullPath(resourceDomain + temp.getFilePath());
-            }
-        }
+//        if (CollUtil.isNotEmpty(list)) {
+//            Map<String, String> params = paramterService.getAllParamByMap();
+//            String resourceDomain = params.get("resource_domain");
+//            for (FileInfo temp : list) {
+//                temp.setFileFullPath(resourceDomain + temp.getFilePath());
+//            }
+//        }
         return getDataTable(list);
     }
 

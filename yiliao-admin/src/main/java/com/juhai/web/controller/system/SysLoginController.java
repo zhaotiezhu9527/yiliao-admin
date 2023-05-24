@@ -1,7 +1,11 @@
 package com.juhai.web.controller.system;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import com.juhai.business.service.IParamterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +38,9 @@ public class SysLoginController
     @Autowired
     private SysPermissionService permissionService;
 
+    @Autowired
+    private IParamterService paramterService;
+
     /**
      * 登录方法
      * 
@@ -47,7 +54,13 @@ public class SysLoginController
         // 生成令牌
         String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
                 loginBody.getUuid());
+
+        Map<String, String> params = paramterService.getAllParamByMap();
         ajax.put(Constants.TOKEN, token);
+
+        Map<String, String> other = new HashMap<>();
+        other.put("resourceDomain", params.get("resource_domain"));
+        ajax.put("other", other);
         return ajax;
     }
 

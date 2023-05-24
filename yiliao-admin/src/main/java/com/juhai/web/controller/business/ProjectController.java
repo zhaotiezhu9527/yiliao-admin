@@ -50,13 +50,13 @@ public class ProjectController extends BaseController
     {
         startPage();
         List<Project> list = projectService.selectProjectList(project);
-        if (CollUtil.isNotEmpty(list)) {
-            Map<String, String> params = paramterService.getAllParamByMap();
-            String resourceDomain = params.get("resource_domain");
-            for (Project temp : list) {
-                temp.setImg(resourceDomain + temp.getImg());
-            }
-        }
+//        if (CollUtil.isNotEmpty(list)) {
+//            Map<String, String> params = paramterService.getAllParamByMap();
+//            String resourceDomain = params.get("resource_domain");
+//            for (Project temp : list) {
+//                temp.setImg(resourceDomain + temp.getImg());
+//            }
+//        }
         return getDataTable(list);
     }
 
@@ -82,9 +82,9 @@ public class ProjectController extends BaseController
     {
         Project project = projectService.selectProjectById(id);
 
-        Map<String, String> params = paramterService.getAllParamByMap();
-        String resourceDomain = params.get("resource_domain");
-        project.setImg(resourceDomain + project.getImg());
+//        Map<String, String> params = paramterService.getAllParamByMap();
+//        String resourceDomain = params.get("resource_domain");
+//        project.setImg(resourceDomain + project.getImg());
 
         return success(project);
     }
