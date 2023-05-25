@@ -58,4 +58,11 @@ public interface IDayReportService
      * @return 结果
      */
     public int deleteDayReportById(Long id);
+
+
+    /**
+     * 查询前十天的数据
+     * @return
+     */
+    public List<DayReport> selectHistoryList();
 }

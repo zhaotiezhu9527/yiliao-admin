@@ -14,7 +14,7 @@ import com.juhai.common.core.domain.BaseEntity;
  * @author zhaotiezhu
  * @date 2023-05-21
  */
-public class User
+public class User extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 

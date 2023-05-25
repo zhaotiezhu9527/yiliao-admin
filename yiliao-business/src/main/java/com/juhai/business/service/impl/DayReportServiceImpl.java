@@ -90,4 +90,9 @@ public class DayReportServiceImpl implements IDayReportService
     {
         return dayReportMapper.deleteDayReportById(id);
     }
+
+    @Override
+    public List<DayReport> selectHistoryList() {
+        return dayReportMapper.selectHistoryList();
+    }
 }

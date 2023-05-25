@@ -12,7 +12,7 @@ import com.juhai.common.core.domain.BaseEntity;
  * @author zhaotiezhu
  * @date 2023-05-24
  */
-public class DayReport extends BaseEntity
+public class DayReport
 {
     private static final long serialVersionUID = 1L;
 

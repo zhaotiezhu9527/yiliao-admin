@@ -58,4 +58,10 @@ public interface DayReportMapper
      * @return 结果
      */
     public int deleteDayReportByIds(Long[] ids);
+
+    /**
+     * 查询前十天的数据
+     * @return
+     */
+    public List<DayReport> selectHistoryList();
 }
