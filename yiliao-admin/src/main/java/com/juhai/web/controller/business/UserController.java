@@ -2,6 +2,7 @@ package com.juhai.web.controller.business;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 
@@ -12,9 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.crypto.SecureUtil;
-import com.juhai.business.domain.Account;
-import com.juhai.business.domain.Deposit;
-import com.juhai.business.domain.Withdraw;
+import com.juhai.business.domain.*;
 import com.juhai.business.service.*;
 import com.juhai.web.controller.business.request.OptUserMoneyRequest;
 import org.apache.commons.collections4.queue.PredicatedQueue;
@@ -34,7 +33,6 @@ import com.juhai.common.annotation.Log;
 import com.juhai.common.core.controller.BaseController;
 import com.juhai.common.core.domain.AjaxResult;
 import com.juhai.common.enums.BusinessType;
-import com.juhai.business.domain.User;
 import com.juhai.common.utils.poi.ExcelUtil;
 import com.juhai.common.core.page.TableDataInfo;
 
@@ -62,6 +60,9 @@ public class UserController extends BaseController
 
     @Autowired
     private IParamterService paramterService;
+
+    @Autowired
+    private IUserReportService userReportService;
 
     /**
      * 查询【请填写功能名称】列表
@@ -247,6 +248,17 @@ public class UserController extends BaseController
             account.setAccountNo(IdUtil.getSnowflakeNextIdStr());
             account.setRemark(request.getRemark());
             accountService.insertAccount(account);
+
+            // 记录报表
+            UserReport report = new UserReport();
+            report.setUserName(user.getUserName());
+            report.setToday(DateUtil.format(now, "yyyyMMdd"));
+            report.setDepositAmount(money);
+            report.setWithdrawAmount(new BigDecimal("0"));
+            report.setInvestmentAmount(new BigDecimal("0"));
+            report.setIncomeAmount(new BigDecimal("0"));
+            userReportService.insertOrUpdate(report);
+
             return toAjax(true);
         } else if (StringUtils.equals("2", request.getType())) {
             if (money.doubleValue() > user.getBalance().doubleValue()) {

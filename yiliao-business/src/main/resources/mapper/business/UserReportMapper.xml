@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juhai.business.mapper.UserReportMapper">
+    
+    <resultMap type="UserReport" id="UserReportResult">
+        <result property="id"    column="id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="today"    column="today"    />
+        <result property="depositAmount"    column="deposit_amount"    />
+        <result property="withdrawAmount"    column="withdraw_amount"    />
+        <result property="investmentAmount"    column="investment_amount"    />
+        <result property="incomeAmount"    column="income_amount"    />
+    </resultMap>
+
+    <sql id="selectUserReportVo">
+        select id, user_name, today, deposit_amount, withdraw_amount, investment_amount, income_amount from t_user_report
+    </sql>
+
+    <select id="selectUserReportList" parameterType="UserReport" resultMap="UserReportResult">
+        <include refid="selectUserReportVo"/>
+        <where>  
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+            <if test="today != null  and today != ''"> and today = #{today}</if>
+            <if test="depositAmount != null "> and deposit_amount = #{depositAmount}</if>
+            <if test="withdrawAmount != null "> and withdraw_amount = #{withdrawAmount}</if>
+            <if test="investmentAmount != null "> and investment_amount = #{investmentAmount}</if>
+            <if test="incomeAmount != null "> and income_amount = #{incomeAmount}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserReportById" parameterType="Long" resultMap="UserReportResult">
+        <include refid="selectUserReportVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertUserReport" parameterType="UserReport" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user_report
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userName != null and userName != ''">user_name,</if>
+            <if test="today != null">today,</if>
+            <if test="depositAmount != null">deposit_amount,</if>
+            <if test="withdrawAmount != null">withdraw_amount,</if>
+            <if test="investmentAmount != null">investment_amount,</if>
+            <if test="incomeAmount != null">income_amount,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="today != null">#{today},</if>
+            <if test="depositAmount != null">#{depositAmount},</if>
+            <if test="withdrawAmount != null">#{withdrawAmount},</if>
+            <if test="investmentAmount != null">#{investmentAmount},</if>
+            <if test="incomeAmount != null">#{incomeAmount},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserReport" parameterType="UserReport">
+        update t_user_report
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="today != null">today = #{today},</if>
+            <if test="depositAmount != null">deposit_amount = #{depositAmount},</if>
+            <if test="withdrawAmount != null">withdraw_amount = #{withdrawAmount},</if>
+            <if test="investmentAmount != null">investment_amount = #{investmentAmount},</if>
+            <if test="incomeAmount != null">income_amount = #{incomeAmount},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUserReportById" parameterType="Long">
+        delete from t_user_report where id = #{id}
+    </delete>
+
+    <delete id="deleteUserReportByIds" parameterType="String">
+        delete from t_user_report where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertOrUpdate">
+        insert into t_user_report
+        (user_name, today, deposit_amount, withdraw_amount, investment_amount, income_amount)
+        VALUES (#{report.userName},
+                #{report.today},
+                #{report.depositAmount},
+                #{report.withdrawAmount},
+                #{report.investmentAmount},
+                #{report.incomeAmount}) ON DUPLICATE KEY
+        UPDATE
+            deposit_amount = deposit_amount + #{report.depositAmount},
+            withdraw_amount = withdraw_amount + #{report.withdrawAmount},
+            investment_amount = investment_amount + #{report.investmentAmount},
+            income_amount = income_amount + #{report.incomeAmount}
+    </insert>
+</mapper>

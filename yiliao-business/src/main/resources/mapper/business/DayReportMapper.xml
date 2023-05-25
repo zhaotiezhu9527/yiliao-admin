@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juhai.business.mapper.DayReportMapper">
+    
+    <resultMap type="DayReport" id="DayReportResult">
+        <result property="id"    column="id"    />
+        <result property="today"    column="today"    />
+        <result property="depositAmount"    column="deposit_amount"    />
+        <result property="withdrawAmount"    column="withdraw_amount"    />
+        <result property="investmentAmount"    column="investment_amount"    />
+        <result property="incomeAmount"    column="income_amount"    />
+        <result property="registerCount"    column="register_count"    />
+        <result property="depositCount"    column="deposit_count"    />
+        <result property="withdrawCount"    column="withdraw_count"    />
+        <result property="investmentCount"    column="investment_count"    />
+    </resultMap>
+
+    <sql id="selectDayReportVo">
+        select id, today, deposit_amount, withdraw_amount, investment_amount, income_amount, register_count, deposit_count, withdraw_count, investment_count from t_day_report
+    </sql>
+
+    <select id="selectDayReportList" parameterType="DayReport" resultMap="DayReportResult">
+        <include refid="selectDayReportVo"/>
+        <where>  
+            <if test="today != null  and today != ''"> and today = #{today}</if>
+            <if test="depositAmount != null "> and deposit_amount = #{depositAmount}</if>
+            <if test="withdrawAmount != null "> and withdraw_amount = #{withdrawAmount}</if>
+            <if test="investmentAmount != null "> and investment_amount = #{investmentAmount}</if>
+            <if test="incomeAmount != null "> and income_amount = #{incomeAmount}</if>
+            <if test="registerCount != null "> and register_count = #{registerCount}</if>
+            <if test="depositCount != null "> and deposit_count = #{depositCount}</if>
+            <if test="withdrawCount != null "> and withdraw_count = #{withdrawCount}</if>
+            <if test="investmentCount != null "> and investment_count = #{investmentCount}</if>
+        </where>
+    </select>
+    
+    <select id="selectDayReportById" parameterType="Long" resultMap="DayReportResult">
+        <include refid="selectDayReportVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDayReport" parameterType="DayReport" useGeneratedKeys="true" keyProperty="id">
+        insert into t_day_report
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="today != null and today != ''">today,</if>
+            <if test="depositAmount != null">deposit_amount,</if>
+            <if test="withdrawAmount != null">withdraw_amount,</if>
+            <if test="investmentAmount != null">investment_amount,</if>
+            <if test="incomeAmount != null">income_amount,</if>
+            <if test="registerCount != null">register_count,</if>
+            <if test="depositCount != null">deposit_count,</if>
+            <if test="withdrawCount != null">withdraw_count,</if>
+            <if test="investmentCount != null">investment_count,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="today != null and today != ''">#{today},</if>
+            <if test="depositAmount != null">#{depositAmount},</if>
+            <if test="withdrawAmount != null">#{withdrawAmount},</if>
+            <if test="investmentAmount != null">#{investmentAmount},</if>
+            <if test="incomeAmount != null">#{incomeAmount},</if>
+            <if test="registerCount != null">#{registerCount},</if>
+            <if test="depositCount != null">#{depositCount},</if>
+            <if test="withdrawCount != null">#{withdrawCount},</if>
+            <if test="investmentCount != null">#{investmentCount},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDayReport" parameterType="DayReport">
+        update t_day_report
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="today != null and today != ''">today = #{today},</if>
+            <if test="depositAmount != null">deposit_amount = #{depositAmount},</if>
+            <if test="withdrawAmount != null">withdraw_amount = #{withdrawAmount},</if>
+            <if test="investmentAmount != null">investment_amount = #{investmentAmount},</if>
+            <if test="incomeAmount != null">income_amount = #{incomeAmount},</if>
+            <if test="registerCount != null">register_count = #{registerCount},</if>
+            <if test="depositCount != null">deposit_count = #{depositCount},</if>
+            <if test="withdrawCount != null">withdraw_count = #{withdrawCount},</if>
+            <if test="investmentCount != null">investment_count = #{investmentCount},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDayReportById" parameterType="Long">
+        delete from t_day_report where id = #{id}
+    </delete>
+
+    <delete id="deleteDayReportByIds" parameterType="String">
+        delete from t_day_report where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
