@@ -41,19 +41,89 @@
         </el-col>
       </el-row>
     </div>
-    <!-- <line-chart :data="data" area /> -->
+    <div class="margin10">
+      <div ref="chongzhi" style="height: 420px" />
+    </div>
+    <div>
+      <div ref="zhuce" style="height: 420px" />
+    </div>
   </div>
 </template>
 
 <script>
 import { allReport } from "@/api/business/dayReport";
+import * as echarts from "echarts";
 export default {
   name: "DayReport",
   data() {
     return {
       // 遮罩层
       loading: true,
-      dayReportList: {},
+      dayReportList: {
+        today: {
+          registerCount:0,
+          depositAmount:0,
+          depositCount:0,
+          investmentAmount:0,
+          investmentCount:0,
+          withdrawAmount:0,
+          withdrawCount:0,
+          waitReturnIncome:0,
+        },
+      },
+      // 统计命令信息
+      czstats: null,
+      zcstats: null,
+      historyData:[],//历史数据
+      registerCountArr:[],//注册数据
+      depositAmountArr:[],//充值数据
+      investmentAmountArr: [],//投注数据
+      withdrawAmountArr: [],//提现数据
+      dateArr: [],
+      option:  {
+          title: {
+            text: '今日报表'
+          },
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            data: ['注册量', '充值量']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          toolbox: {
+            feature: {
+              saveAsImage: {}
+            }
+          },
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: [0,0,0]
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              name: '注册量',
+              type: 'line',
+              stack: 'Total',
+              data: [0,0]
+            },
+            {
+              name: '充值量',
+              type: 'line',
+              stack: 'Total',
+              data: [0,0]
+            },
+          ]
+      }
     };
   },
   mounted (){
@@ -66,35 +136,130 @@ export default {
     /** 查询日报表列表 */
     getList() {
       this.loading = true;
+      this.registerCountArr = []
+      this.depositAmountArr = []
+      this.dateArr = []
+      this.investmentAmountArr = []
+      this.withdrawAmountArr = []
       allReport({}).then(response => {
+        
         this.dayReportList = response.data;
         this.total = response.total;
         this.loading = false;
+        this.historyData = response.data.history
+        this.historyData.forEach((item,index) => {
+          this.investmentAmountArr.push(item.investmentAmount)
+          this.withdrawAmountArr.push(item.withdrawAmount)
+          this.registerCountArr.push(item.registerCount)
+          this.depositAmountArr.push(item.depositAmount)
+          this.dateArr.push(item.today)
+        });
+        this.initCharts(this.dateArr,this.depositAmountArr,this.investmentAmountArr,this.withdrawAmountArr)
+        this.initCharts2(this.dateArr,this.registerCountArr)
       });
     },
-    initCharts() {        
-        console.log(this.$refs.chart); 
-        console.log(this.$echarts)
-        // 绘制图表        
-        // return      
-        let myChart = this.$echarts.init(document.getElementById('chart'));            
-        myChart.setOption({        
-            title: { text: "在Vue中使用echarts" },        
-            tooltip: {},        
-            xAxis: {          
-                data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"],        
-            },        
-            yAxis: {},        
-            series: [          
-                {            
-                    name: "销量",            
-                    type: "bar",            
-                    data: [5, 20, 36, 10, 10, 20],          
-                },        
-            ],      
-        });    
-    },  
-}
+    initCharts(riqi,chongzhi,touzhu,tixian) {        
+      this.czstats = echarts.init(this.$refs.chongzhi, "macarons");
+      let option = {
+          title: {
+            text: '充值报表'
+          },
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            data: ['充值金额','投资金额','提现金额']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          toolbox: {
+            feature: {
+              saveAsImage: {}
+            }
+          },
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: riqi
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              name: '充值金额',
+              type: 'line',
+              // stack: 'Total',
+              data: chongzhi
+            },
+            {
+              name: '投资金额',
+              type: 'line',
+              // stack: 'Total',
+              data: touzhu
+            },
+            {
+              name: '提现金额',
+              type: 'line',
+              // stack: 'Total',
+              data: tixian
+            }
+          ]
+      }
+      this.czstats.setOption(option)
+    },
+    initCharts2(riqi,zhuce) {        
+      this.zcstats = echarts.init(this.$refs.zhuce, "macarons");
+      let option = {
+          title: {
+            text: '注册报表'
+          },
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            data: ['注册量']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          toolbox: {
+            feature: {
+              saveAsImage: {}
+            }
+          },
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: riqi
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              name: '注册量',
+              type: 'line',
+              stack: 'Total',
+              data: zhuce
+            }
+          ]
+      }
+      this.zcstats.setOption(option)
+    },
+    changeOption(){
+
+    } 
+  },
+  components:{
+  }
 };
 </script>
 <style>
@@ -106,5 +271,8 @@ export default {
   font-size: 20px;
   width: 100%;
   text-align: center;
+}
+.margin10{
+  margin: 20px;
 }
 </style>
