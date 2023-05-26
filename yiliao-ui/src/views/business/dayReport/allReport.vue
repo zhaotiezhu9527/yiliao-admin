@@ -1,42 +1,43 @@
 <template>
   <div class="app-container">
     <div class="title">今日报表</div>
+    <el-button type="success" @click="getList" :loading="loading">刷新数据</el-button>
     <div>
       <el-row :gutter="12">
         <el-col :span="8">
           <el-card shadow="always" class="margin-top10">
             <div>注册量</div>
-            <div>{{ dayReportList.today.registerCount}}</div>
+            <div>{{ dayReportList.today.registerCount}} 人</div>
           </el-card>
         </el-col>
         <el-col :span="8">
           <el-card shadow="always" class="margin-top10">
-            <div>充值量/人数</div>
-            <div>{{ dayReportList.today.depositAmount}}元 / {{ dayReportList.today.depositCount}}</div>
+            <div>充值量 / 人数</div>
+            <div>{{ dayReportList.today.depositAmount}} 元 / {{ dayReportList.today.depositCount}} 人</div>
           </el-card>
         </el-col>
         <el-col :span="8">
           <el-card shadow="always" class="margin-top10">
-            <div>投资量/人数</div>
-            <div>{{ dayReportList.today.investmentAmount}}元 / {{ dayReportList.today.investmentCount}}</div>
+            <div>投资量 / 人数</div>
+            <div>{{ dayReportList.today.investmentAmount}} 元 / {{ dayReportList.today.investmentCount}} 人</div>
           </el-card>
         </el-col>
         <el-col :span="8">
           <el-card shadow="always" class="margin-top10">
-            <div>提现量/人数</div>
-            <div>{{ dayReportList.today.withdrawAmount}}元 / {{ dayReportList.today.withdrawCount}}</div>
+            <div>提现量 / 人数</div>
+            <div>{{ dayReportList.today.withdrawAmount}} 元 / {{ dayReportList.today.withdrawCount}} 人</div>
           </el-card>
         </el-col>
         <el-col :span="8">
           <el-card shadow="always" class="margin-top10">
             <div>已收益</div>
-            <div>{{ dayReportList.today.returnIncome}}元</div>
+            <div>{{ dayReportList.today.returnIncome}} 元</div>
           </el-card>
         </el-col>
         <el-col :span="8">
           <el-card shadow="always" class="margin-top10">
             <div>待收益</div>
-            <div>{{ dayReportList.today.waitReturnIncome}}元</div>
+            <div>{{ dayReportList.today.waitReturnIncome}} 元</div>
           </el-card>
         </el-col>
       </el-row>
@@ -79,6 +80,9 @@ export default {
       depositAmountArr:[],//充值数据
       investmentAmountArr: [],//投注数据
       withdrawAmountArr: [],//提现数据
+      depositCountArr: [],//充值人数数据
+      investmentCountArr: [],//投资人数数据
+      withdrawCountArr: [],//提现人数数据
       dateArr: [],
       option:  {
           title: {
@@ -141,6 +145,9 @@ export default {
       this.dateArr = []
       this.investmentAmountArr = []
       this.withdrawAmountArr = []
+      this.depositCountArr = []
+      this.investmentCountArr = []
+      this.withdrawCountArr = []
       allReport({}).then(response => {
         
         this.dayReportList = response.data;
@@ -152,17 +159,20 @@ export default {
           this.withdrawAmountArr.push(item.withdrawAmount)
           this.registerCountArr.push(item.registerCount)
           this.depositAmountArr.push(item.depositAmount)
+          this.depositCountArr.push(item.depositCount)
+          this.investmentCountArr.push(item.investmentCount)
+          this.withdrawCountArr.push(item.withdrawCount)
           this.dateArr.push(item.today)
         });
         this.initCharts(this.dateArr,this.depositAmountArr,this.investmentAmountArr,this.withdrawAmountArr)
-        this.initCharts2(this.dateArr,this.registerCountArr)
+        this.initCharts2(this.dateArr,this.registerCountArr,this.depositCountArr,this.investmentCountArr,this.withdrawCountArr)
       });
     },
     initCharts(riqi,chongzhi,touzhu,tixian) {        
       this.czstats = echarts.init(this.$refs.chongzhi, "macarons");
       let option = {
           title: {
-            text: '充值报表'
+            text: '金额报表'
           },
           tooltip: {
             trigger: 'axis'
@@ -212,17 +222,17 @@ export default {
       }
       this.czstats.setOption(option)
     },
-    initCharts2(riqi,zhuce) {        
+    initCharts2(riqi,zhuce,chongzhi,touzhu,tixian) {        
       this.zcstats = echarts.init(this.$refs.zhuce, "macarons");
       let option = {
           title: {
-            text: '注册报表'
+            text: '人数报表'
           },
           tooltip: {
             trigger: 'axis'
           },
           legend: {
-            data: ['注册量']
+            data: ['注册人数','充值人数','投资人数','提现人数']
           },
           grid: {
             left: '3%',
@@ -245,10 +255,24 @@ export default {
           },
           series: [
             {
-              name: '注册量',
+              name: '注册人数',
               type: 'line',
-              stack: 'Total',
               data: zhuce
+            },
+            {
+              name: '充值人数',
+              type: 'line',
+              data: chongzhi
+            },
+            {
+              name: '投资人数',
+              type: 'line',
+              data: touzhu
+            },
+            {
+              name: '提现人数',
+              type: 'line',
+              data: tixian
             }
           ]
       }
