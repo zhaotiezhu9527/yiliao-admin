@@ -96,6 +96,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectHistoryList" resultMap="DayReportResult">
         <include refid="selectDayReportVo"/>
-        order by today desc limit 10
+        order by today desc limit 30
     </select>
 </mapper>
