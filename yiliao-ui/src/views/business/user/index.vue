@@ -124,9 +124,16 @@
       </el-table-column>>
       <!-- <el-table-column label="支行信息" align="center" prop="bankAddr" />
       <el-table-column label="银行卡号" align="center" prop="bankCardNum" /> -->
-      <el-table-column label="冻结" align="center" prop="userStatus">
+      <el-table-column label="状态" align="center" prop="userStatus" width="200">
         <template slot-scope="scope">
-          <span>{{scope.row.userStatus === 0 ? '正常' : '冻结' }}</span>
+          <el-switch
+            v-model="scope.row.userStatus"
+            @change="changeStatus(scope.row.id,scope.row.userStatus)"
+            :active-value="0"
+            :inactive-value="1"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
         </template>
       </el-table-column>
       <el-table-column label="会员等级" align="center" prop="userLevelId" >
@@ -184,6 +191,13 @@
             @click="handleUpdate(scope.row)"
             v-hasPermi="['business:user:edit']"
           >修改</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="balanceUpdate(scope.row)"
+            v-hasPermi="['business:user:optMoney']"
+          >余额重置</el-button>
           <!-- <el-button
             size="mini"
             type="text"
@@ -386,11 +400,26 @@
         <el-button @click="userOpen = false">取 消</el-button>
       </div>
     </el-dialog>
+    <!-- 修改余额对话框 -->
+    <el-dialog title="重置余额" :visible.sync="resetBalanceStatus" width="500px" append-to-body>
+      <el-form ref="resetBalanceForm" :model="resetBalanceForm" :rules="rules" label-width="120px">
+        <el-form-item label="用户名">
+          <el-input :disabled="true" v-model="resetBalanceForm.userName" placeholder="请输入4-12位数字或字母" />
+        </el-form-item>
+        <el-form-item label="修改后余额" prop="balance">
+          <el-input v-model="resetBalanceForm.balance" placeholder="请输入金额" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="balanceUpdateSub">确 定</el-button>
+        <el-button @click="resetBalanceForm = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser,balanceUser } from "@/api/business/user";
+import { listUser, getUser, delUser, addUser, updateUser,balanceUser ,resetBalance} from "@/api/business/user";
 import { dateFormat} from '@/utils/auth'
 
 export default {
@@ -459,6 +488,9 @@ export default {
         remark: [
           { required: true, message: "请填写备注", trigger: "blur" }
         ],
+        balance: [
+        { required: true, message: "金额不能为空", trigger: "blur" }
+        ]
       },
       pickerOptions: {
           shortcuts: [{
@@ -504,6 +536,12 @@ export default {
       detailsTotal: 0,
       detailType:'',
       detailValue:'',
+      resetBalanceStatus: false,//重置余额弹窗
+      resetBalanceForm: {
+        id: '',
+        userName: '',
+        balance: '',
+      },//重置余额数据
     };
   },
   created() {
@@ -533,7 +571,7 @@ export default {
     // 增减余额表单重置
     balanceCancel(){
       this.balanceOpen = false;
-      this.balanceReset();
+      // this.balanceReset();
     },
     // 表单重置
     addReset() {
@@ -605,7 +643,7 @@ export default {
     },
     // 增减余额
     handleBalance(){
-      this.balanceReset();
+      // this.balanceReset();
       this.balanceOpen = true;
     },
     addSub(){
@@ -710,6 +748,37 @@ export default {
       this.dateRange[0] = dateFormat("YYYY-mm-dd" , start) + ' 00:00:00'
       this.dateRange[1] = dateFormat("YYYY-mm-dd" , end) + ' 23:59:59'
     },
+    // 余额重置
+    balanceUpdate(row){
+      this.resetBalanceStatus = true
+      this.resetBalanceForm.id = row.id
+      this.resetBalanceForm.userName = row.userName
+      this.resetBalanceForm.balance = row.balance
+    },
+    // 提交重置余额
+    balanceUpdateSub(){
+      this.$refs["resetBalanceForm"].validate(valid => {
+        if (valid) {
+          resetBalance(this.resetBalanceForm).then(response => {
+            this.$modal.msgSuccess("修改成功");
+            this.resetBalanceStatus = false;
+            this.getList();
+          });
+        }
+      });
+    },
+    // 修改冻结状态
+    changeStatus(id,status){
+      console.log(id,status)
+      updateUser(
+        {
+          id: id,
+          userStatus : status
+        }
+      ).then(response => {
+        this.$modal.msgSuccess("修改成功");
+      });
+    }
   }
 };
 </script>

@@ -51,3 +51,12 @@ export function balanceUser(data) {
     data: data
   })
 }
+
+// 重置余额
+export function resetBalance(data) {
+  return request({
+    url: '/business/user/resetBalance',
+    method: 'post',
+    data: data
+  })
+}

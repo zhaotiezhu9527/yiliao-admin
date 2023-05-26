@@ -43,6 +43,11 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <div>
+      <audio class="success" ref="mp3"
+        src="@/assets/mp3/withdraw.mp3">
+      </audio>
+    </div>
   </div>
 </template>
 
@@ -56,6 +61,7 @@ import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
 import RuoYiGit from '@/components/RuoYi/Git'
 import RuoYiDoc from '@/components/RuoYi/Doc'
+import { getNotice } from "@/api/menu";
 
 export default {
   components: {
@@ -105,8 +111,22 @@ export default {
           location.href = '/index';
         })
       }).catch(() => {});
+    },
+    getNotice(){
+      getNotice().then(response => {
+        if(response.data){
+          // this.$nextTick(() => {
+            this.$refs.mp3.play()
+          // })
+        }
+      });
     }
-  }
+  },
+  created() {
+    setInterval(() => {
+      this.getNotice();
+    },10000)
+  },
 }
 </script>
 
