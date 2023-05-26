@@ -220,14 +220,14 @@
     <!-- 提现审核 -->
     <el-dialog title="提交审核" :visible.sync="examineOpen" width="500px" append-to-body>
       <el-form ref="examineform" :model="examineForm" :rules="rules" label-width="80px">
-        <el-form-item label="增减类型" prop="status">
+        <el-form-item label="审核" prop="status">
           <el-select v-model="examineForm.status" placeholder="请选择审核状态">
             <el-option label="通过" :value="1"></el-option>
             <el-option label="拒绝" :value="2"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="examineForm.remark" placeholder="请输入审核备注描述" />
+        <el-form-item label="备注">
+          <el-input v-model="examineForm.remark" placeholder="请输入审核备注描述，没有可不填" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

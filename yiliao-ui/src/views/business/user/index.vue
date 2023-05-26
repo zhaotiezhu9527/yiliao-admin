@@ -9,10 +9,18 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="推荐人" prop="userAgent">
+      <!-- <el-form-item label="推荐人" prop="userAgent">
         <el-input
           v-model="queryParams.userAgent"
           placeholder="请输入推荐人用户名"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item> -->
+      <el-form-item label="用户姓名" prop="realName">
+        <el-input
+          v-model="queryParams.realName"
+          placeholder="请输入用户姓名"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -683,12 +691,15 @@ export default {
     queryChange(type,value){
       this.detailType = type
       this.detailValue = value
-      let obj = {}
       this.userform[type] = value
+      if(type === 'userName'){
+        delete this.userform.userAgent;
+      }else if(type === 'userAgent'){
+        delete this.userform.userName;
+      }
       listUser(this.userform).then(response => {
         this.detailList = response.rows;
         this.detailsTotal = response.total;
-        console.log(this.detailsTotal)
         this.detailsOpen = true
       });
     },
