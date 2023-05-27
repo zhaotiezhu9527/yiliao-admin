@@ -173,12 +173,12 @@
           <el-button
             size="mini"
             type="success"
-            @click="queryChange('userName',scope.row.userAgent)"
+            @click="queryChange('shangji',scope.row.id)"
           >上级用户</el-button>
           <el-button
             size="mini"
             type="success"
-            @click="queryChange('userAgent',scope.row.userName)"
+            @click="queryChange('xiaji',scope.row.id)"
           >下级用户</el-button>
         </template>
       </el-table-column>
@@ -198,13 +198,13 @@
             @click="balanceUpdate(scope.row)"
             v-hasPermi="['business:user:optMoney']"
           >余额重置</el-button>
-          <!-- <el-button
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['business:user:remove']"
-          >删除</el-button> -->
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -335,7 +335,7 @@
         :total="detailsTotal"
         :page.sync="userform.pageNum"
         :limit.sync="userform.pageSize"
-        @pagination="queryChange(detailType,detailValue)"
+        @pagination="queryChange(detailType,userform.id)"
       />
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="detailsOpen = false">确 定</el-button>
@@ -419,7 +419,7 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser,balanceUser ,resetBalance} from "@/api/business/user";
+import { listUser, getUser, delUser, addUser, updateUser,balanceUser ,resetBalance,getAgentUser ,getSubUser} from "@/api/business/user";
 import { dateFormat} from '@/utils/auth'
 
 export default {
@@ -726,20 +726,22 @@ export default {
       }, `user_${new Date().getTime()}.xlsx`)
     },
     //查询上下级
-    queryChange(type,value){
+    queryChange(type,id){
       this.detailType = type
-      this.detailValue = value
-      this.userform[type] = value
-      if(type === 'userName'){
-        delete this.userform.userAgent;
-      }else if(type === 'userAgent'){
-        delete this.userform.userName;
+      this.userform["id"] = id
+      if(type === 'shangji'){
+        getAgentUser(this.userform).then(response => {
+          this.detailList = response.rows;
+          this.detailsTotal = response.total;
+          this.detailsOpen = true
+        });
+      }else if(type === 'xiaji'){
+        getSubUser(this.userform).then(response => {
+          this.detailList = response.rows;
+          this.detailsTotal = response.total;
+          this.detailsOpen = true
+        });
       }
-      listUser(this.userform).then(response => {
-        this.detailList = response.rows;
-        this.detailsTotal = response.total;
-        this.detailsOpen = true
-      });
     },
     getDefaultTime() {
       let end = new Date();

@@ -60,3 +60,20 @@ export function resetBalance(data) {
     data: data
   })
 }
+
+// 获取上级
+export function getAgentUser(query) {
+  return request({
+    url: '/business/user/getAgentUser',
+    method: 'get',
+    params: query
+  })
+}
+//获取下级
+export function getSubUser(query) {
+  return request({
+    url: '/business/user/getSubUser',
+    method: 'get',
+    params: query
+  })
+}
