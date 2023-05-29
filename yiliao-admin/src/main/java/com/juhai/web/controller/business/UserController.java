@@ -1,40 +1,32 @@
 package com.juhai.web.controller.business;
-import java.math.BigDecimal;
-import java.util.Date;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
-
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
-
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.juhai.business.domain.*;
 import com.juhai.business.service.*;
-import com.juhai.web.controller.business.request.OptUserMoneyRequest;
-import org.apache.commons.collections4.queue.PredicatedQueue;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.juhai.common.annotation.Log;
 import com.juhai.common.core.controller.BaseController;
 import com.juhai.common.core.domain.AjaxResult;
+import com.juhai.common.core.page.TableDataInfo;
 import com.juhai.common.enums.BusinessType;
 import com.juhai.common.utils.poi.ExcelUtil;
-import com.juhai.common.core.page.TableDataInfo;
+import com.juhai.web.controller.business.request.OptUserMoneyRequest;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Controller
@@ -73,6 +65,37 @@ public class UserController extends BaseController
     {
         startPage();
         List<User> list = userService.selectUserList(user);
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('business:user:list')")
+    @GetMapping("/getAgentUser")
+    public TableDataInfo getAgentUser(User user)
+    {
+        User temp = userService.selectUserById(user.getId());
+        if (temp == null || StringUtils.isBlank(temp.getUserAgent())) {
+            return getDataTable(new ArrayList<>());
+        }
+
+        User user1 = new User();
+        user1.setUserName(temp.getUserAgent());
+
+        startPage();
+        List<User> list = userService.selectUserList(user1);
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('business:user:list')")
+    @GetMapping("/getSubUser")
+    public TableDataInfo getSubUser(User user)
+    {
+        User temp = userService.selectUserById(user.getId());
+
+        User user1 = new User();
+        user1.setUserAgent(temp.getUserName());
+
+        startPage();
+        List<User> list = userService.selectUserList(user1);
         return getDataTable(list);
     }
 
@@ -174,6 +197,9 @@ public class UserController extends BaseController
             if (!matchLoginPwd) {
                 return AjaxResult.error("请输入6-12位登录密码");
             }
+            user.setLoginPwd(SecureUtil.md5(user.getLoginPwd()));
+        } else {
+            user.setLoginPwd(null);
         }
 
         if (StringUtils.isNotBlank(user.getPayPwd())) {
@@ -181,11 +207,21 @@ public class UserController extends BaseController
             if (!matchPayPwd) {
                 return AjaxResult.error("请输入6位支付密码");
             }
+            user.setPayPwd(SecureUtil.md5(user.getPayPwd()));
+        } else {
+            user.setPayPwd(null);
         }
+        user.setBalance(null);
 
-        user.setLoginPwd(SecureUtil.md5(user.getLoginPwd()));
-        user.setPayPwd(SecureUtil.md5(user.getPayPwd()));
+        return toAjax(userService.updateUser(user));
+    }
 
+
+    @PreAuthorize("@ss.hasPermi('business:user:optMoney')")
+    @Log(title = "【重置用户余额】", businessType = BusinessType.UPDATE)
+    @PostMapping("/resetBalance")
+    public AjaxResult resetBalance(@RequestBody User user)
+    {
         return toAjax(userService.updateUser(user));
     }
 
@@ -205,9 +241,9 @@ public class UserController extends BaseController
     @Log(title = "【用户上下分】", businessType = BusinessType.UPDATE)
     @PostMapping("/optMoney")
     public AjaxResult optMoney(@RequestBody OptUserMoneyRequest request) throws Exception {
-        if (StringUtils.isBlank(request.getRemark())) {
-            return AjaxResult.error("请输入备注");
-        }
+//        if (StringUtils.isBlank(request.getRemark())) {
+//            return AjaxResult.error("请输入备注");
+//        }
         User user = userService.getUserByName(request.getUserName());
         if (user == null) {
             return AjaxResult.error("用户不存在.");
