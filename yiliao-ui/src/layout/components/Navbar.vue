@@ -125,7 +125,7 @@ export default {
   created() {
     setInterval(() => {
       this.getNotice();
-    },10000)
+    },30000)
   },
 }
 </script>
