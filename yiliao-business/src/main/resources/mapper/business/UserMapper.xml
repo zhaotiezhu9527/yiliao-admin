@@ -34,7 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectUserList" parameterType="User" resultMap="UserResult">
         <include refid="selectUserVo"/>
         <where>  
-            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
             <if test="balance != null "> and balance = #{balance}</if>
             <if test="realName != null  and realName != ''"> and real_name like concat('%', #{realName}, '%')</if>
             <if test="idCard != null  and idCard != ''"> and id_card = #{idCard}</if>
@@ -127,10 +127,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bankName != null">bank_name = #{bankName},</if>
             <if test="bankAddr != null">bank_addr = #{bankAddr},</if>
             <if test="userStatus != null">user_status = #{userStatus},</if>
+            <if test="balance != null">balance = #{balance},</if>
 
-<!--            <if test="userName != null and userName != ''">user_name = #{userName},</if>-->
-<!--            <if test="inviteCode != null">invite_code = #{inviteCode},</if>-->
-<!--            <if test="balance != null">balance = #{balance},</if>-->
+            <!--            <if test="userName != null and userName != ''">user_name = #{userName},</if>-->
+            <!--            <if test="inviteCode != null">invite_code = #{inviteCode},</if>-->
 <!--            <if test="userLevelId != null">user_level_id = #{userLevelId},</if>-->
 <!--            <if test="userAgent != null">user_agent = #{userAgent},</if>-->
 <!--            <if test="isRealName != null">is_real_name = #{isRealName},</if>-->
