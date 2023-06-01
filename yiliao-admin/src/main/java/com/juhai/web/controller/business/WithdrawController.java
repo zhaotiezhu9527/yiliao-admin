@@ -1,5 +1,6 @@
 package com.juhai.web.controller.business;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.juhai.business.domain.Withdraw;
@@ -169,9 +170,13 @@ public class WithdrawController extends BaseController
     @GetMapping(value = "/getNotice")
     public AjaxResult getNotice()
     {
-        String key = "user:withdraw:notice";
-        Boolean flag = redisTemplate.hasKey(key);
-        redisTemplate.delete(key);
-        return success(flag);
+
+        Withdraw withdraw = new Withdraw();
+        withdraw.setStatus(0L);
+        List<Withdraw> list = withdrawService.selectWithdrawList(withdraw);
+//        String key = "user:withdraw:notice";
+//        Boolean flag = redisTemplate.hasKey(key);
+//        redisTemplate.delete(key);
+        return success(CollUtil.isNotEmpty(list));
     }
 }

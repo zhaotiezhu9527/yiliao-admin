@@ -1,6 +1,7 @@
 package com.juhai.web.controller.business;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -250,6 +251,14 @@ public class UserController extends BaseController
         }
         Date now = new Date();
         BigDecimal money = new BigDecimal(request.getMoney());
+
+        // 是U的话需要换算
+        Map<String, String> params = paramterService.getAllParamByMap();
+        if (StringUtils.equals("2", request.getAmountType())) {
+            Double usdtRate = MapUtil.getDouble(params, "usdt_rate");
+            money = NumberUtil.mul(money, usdtRate);
+        }
+
         if (StringUtils.equals("1", request.getType())) {
             // 加钱
             userService.updateUserBalance(user.getUserName(), money);
