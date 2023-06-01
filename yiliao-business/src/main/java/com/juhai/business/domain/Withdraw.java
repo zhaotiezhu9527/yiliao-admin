@@ -33,6 +33,10 @@ public class Withdraw extends BaseEntity
     @Excel(name = "操作金额")
     private BigDecimal optAmount;
 
+    /** USDT金额 */
+    @Excel(name = "USDT金额")
+    private BigDecimal usdtAmount;
+
     /** 操作前金额 */
     @Excel(name = "操作前金额")
     private BigDecimal beforeAmount;
@@ -238,6 +242,14 @@ public class Withdraw extends BaseEntity
 
     public void setRealName(String realName) {
         this.realName = realName;
+    }
+
+    public BigDecimal getUsdtAmount() {
+        return usdtAmount;
+    }
+
+    public void setUsdtAmount(BigDecimal usdtAmount) {
+        this.usdtAmount = usdtAmount;
     }
 
     @Override

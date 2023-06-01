@@ -20,5 +20,7 @@ public class OptUserMoneyRequest {
      */
     private String type;
 
+    private String amountType;
+
     private String remark;
 }
