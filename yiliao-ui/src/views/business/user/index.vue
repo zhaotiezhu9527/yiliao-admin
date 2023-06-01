@@ -299,7 +299,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="货币类型" prop="type">
-          <el-select v-model="balanceForm.amountType" placeholder="请选择上下分类型">
+          <el-select v-model="balanceForm.amountType" placeholder="请选择货币类型">
             <el-option label="人民币" :value="1"></el-option>
             <el-option label="USDT" :value="2"></el-option>
           </el-select>
