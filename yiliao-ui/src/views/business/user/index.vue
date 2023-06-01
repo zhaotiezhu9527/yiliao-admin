@@ -298,6 +298,12 @@
             <el-option label="下分" :value="2"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="货币类型" prop="type">
+          <el-select v-model="balanceForm.amountType" placeholder="请选择上下分类型">
+            <el-option label="人民币" :value="1"></el-option>
+            <el-option label="USDT" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="修改理由" prop="remark">
           <el-input v-model="balanceForm.remark" placeholder="请填写备注" />
         </el-form-item>
@@ -483,14 +489,17 @@ export default {
           { required: true, message: "金额不能为空", trigger: "blur" }
         ],
         type: [
-          { required: true, message: "请选择类型", trigger: "change" }
+          { required: true, message: "请选择上分类型", trigger: "change" }
         ],
         remark: [
           { required: true, message: "请填写备注", trigger: "blur" }
         ],
         balance: [
         { required: true, message: "金额不能为空", trigger: "blur" }
-        ]
+        ],
+        amountType: [
+          { required: true, message: "请选择余额类型", trigger: "change" }
+        ],
       },
       pickerOptions: {
           shortcuts: [{
