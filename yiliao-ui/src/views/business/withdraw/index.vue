@@ -101,7 +101,8 @@
       <!-- <el-table-column label="id" align="center" prop="id" /> -->
       <el-table-column label="订单号" align="center" prop="orderNo" />
       <el-table-column label="账户" align="center" prop="userName" />
-      <el-table-column label="提现金额（元）" align="center" prop="optAmount" />
+      <el-table-column label="提现金额（¥）" align="center" prop="optAmount" width="120"/>
+      <el-table-column label="提现金额（$）" align="center" prop="usdtAmount" width="150"/>
       <el-table-column label="操作前金额" align="center" prop="beforeAmount" />
       <el-table-column label="操作后金额" align="center" prop="afterAmount" />
       <el-table-column label="USDT钱包地址" align="center" prop="walletAddr" width="200" />
