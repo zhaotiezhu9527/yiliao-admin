@@ -251,6 +251,9 @@ public class UserController extends BaseController
         }
         Date now = new Date();
         BigDecimal money = new BigDecimal(request.getMoney());
+        if (money.doubleValue() <= 0) {
+            return AjaxResult.error("请正确输入金额.");
+        }
 
         // 是U的话需要换算
         Map<String, String> params = paramterService.getAllParamByMap();
@@ -317,6 +320,7 @@ public class UserController extends BaseController
             withdraw.setOrderNo(orderNo);
             withdraw.setUserName(user.getUserName());
             withdraw.setOptAmount(money);
+            withdraw.setUsdtAmount(StringUtils.equals("2", request.getAmountType()) ? new BigDecimal(request.getMoney()) : null);
             withdraw.setBeforeAmount(user.getBalance());
             withdraw.setAfterAmount(NumberUtil.sub(user.getBalance(), money));
             withdraw.setWalletAddr(null);
