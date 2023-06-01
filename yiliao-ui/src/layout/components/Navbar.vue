@@ -115,9 +115,7 @@ export default {
     getNotice(){
       getNotice().then(response => {
         if(response.data){
-          // this.$nextTick(() => {
             this.$refs.mp3.play()
-          // })
         }
       });
     }
