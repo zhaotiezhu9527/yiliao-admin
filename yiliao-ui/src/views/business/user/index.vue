@@ -306,6 +306,7 @@
         </el-form-item>
         <el-form-item label="修改理由" prop="remark">
           <el-input v-model="balanceForm.remark" placeholder="请填写备注" />
+          <el-tag class="reasonClass" type="success" v-for="(item,index) in reasonList" @click="changeReason(item)" :key="index">{{ item }}</el-tag>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -470,7 +471,9 @@ export default {
       // 表单参数
       addForm: {},
       // 增减余额表单数据
-      balanceForm: {},
+      balanceForm: {
+        remark:'',
+      },
       // 表单校验
       rules: {
         userName: [
@@ -551,6 +554,7 @@ export default {
         userName: '',
         balance: '',
       },//重置余额数据
+      reasonList:['增加投资','提款失败退回','保证金退回','提款成功扣除','股权分红','股权']
     };
   },
   created() {
@@ -789,7 +793,17 @@ export default {
       ).then(response => {
         this.$modal.msgSuccess("修改成功");
       });
-    }
+    },
+    //修改理由
+    changeReason(value){
+      this.balanceForm.remark = value
+    },
   }
 };
 </script>
+<style>
+.reasonClass{
+  margin-right: 10px;
+  cursor: pointer;
+}
+</style>
