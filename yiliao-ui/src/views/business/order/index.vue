@@ -116,8 +116,8 @@
           <div>实际返款金额</div>
         </template>
         <template slot-scope="scope">
-          <div>{{ scope.row.forecastReturnAmount + scope.row.amount}}</div>
-          <div>{{ scope.row.actualReturnAmount + scope.row.amount }}</div>
+          <div>{{ Number(Number(scope.row.forecastReturnAmount) + Number(scope.row.amount)).toFixed(4)}}</div>
+          <div>{{ Number(Number(scope.row.actualReturnAmount) + Number(scope.row.amount)).toFixed(4) }}</div>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
