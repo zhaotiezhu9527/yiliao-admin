@@ -10,7 +10,9 @@ target/
 
 ######################################################################
 # IDE
+rm -rf /usr/local/nginx/html/yiliao/admin1/dist.zip && mv /root/data/yiliao/admin/dist.zip /usr/local/nginx/html/yiliao/admin1/ && unzip -o /usr/local/nginx/html/yiliao/admin1/dist.zip
 
+unzip -o /root/data/yiliao/admin/dist.zip -d /usr/local/nginx/html/yiliao/admin1/
 ### STS ###
 .apt_generated
 .classpath
