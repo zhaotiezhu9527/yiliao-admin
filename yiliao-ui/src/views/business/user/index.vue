@@ -284,7 +284,7 @@
       </div>
     </el-dialog>
     <!-- 增减余额对话框 -->
-    <el-dialog title="增减余额" :visible.sync="balanceOpen" width="500px" append-to-body>
+    <el-dialog title="增减余额" :close-on-click-modal="false" :visible.sync="balanceOpen" width="500px" append-to-body>
       <el-form ref="balanceform" :model="balanceForm" :rules="rules" label-width="80px">
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="balanceForm.userName" placeholder="请输入4-12位数字或字母" />
