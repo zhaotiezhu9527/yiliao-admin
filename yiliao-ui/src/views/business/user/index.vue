@@ -558,7 +558,7 @@ export default {
     };
   },
   created() {
-    this.getDefaultTime()
+    // this.getDefaultTime()
     this.getList();
   },
   methods: {
