@@ -121,7 +121,7 @@
           <div>{{scope.row.bankAddr}}</div>
           <div>{{scope.row.bankCardNum}}</div>
         </template>
-      </el-table-column>>
+      </el-table-column>
       <!-- <el-table-column label="支行信息" align="center" prop="bankAddr" />
       <el-table-column label="银行卡号" align="center" prop="bankCardNum" /> -->
       <el-table-column label="状态" align="center" prop="userStatus" width="200">
