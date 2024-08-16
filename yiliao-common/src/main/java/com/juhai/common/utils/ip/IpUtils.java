@@ -3,6 +3,8 @@ package com.juhai.common.utils.ip;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.servlet.http.HttpServletRequest;
+
+import cn.hutool.extra.servlet.ServletUtil;
 import com.juhai.common.utils.ServletUtils;
 import com.juhai.common.utils.StringUtils;
 
@@ -38,33 +40,34 @@ public class IpUtils
      */
     public static String getIpAddr(HttpServletRequest request)
     {
-        if (request == null)
-        {
-            return "unknown";
-        }
-        String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("X-Forwarded-For");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("X-Real-IP");
-        }
+//        if (request == null)
+//        {
+//            return "unknown";
+//        }
+//        String ip = request.getHeader("x-forwarded-for");
+//        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+//        {
+//            ip = request.getHeader("Proxy-Client-IP");
+//        }
+//        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+//        {
+//            ip = request.getHeader("X-Forwarded-For");
+//        }
+//        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+//        {
+//            ip = request.getHeader("WL-Proxy-Client-IP");
+//        }
+//        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+//        {
+//            ip = request.getHeader("X-Real-IP");
+//        }
+//
+//        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+//        {
+//            ip = request.getRemoteAddr();
+//        }
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getRemoteAddr();
-        }
-
+        String ip = ServletUtil.getClientIPByHeader(request, "x-original-forwarded-for");
         return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : getMultistageReverseProxyIp(ip);
     }
 
